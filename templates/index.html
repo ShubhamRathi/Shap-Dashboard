@@ -50,7 +50,7 @@
                 <li><a href="#step-2">Step 2<br /><small>{% if model %} {{model}} {% else %} Choose Model {% endif %}</small></a></li>
                 <li><a href="#step-3">Step 3<br /><small>{% if datapoint %} {{datapoint}} {% else %} Choose Datapoint {% endif %}</small></a></li>
                 <li><a href="#step-4">Step 4<br /><small>See Prediction</small></a></li>
-                <li><a href="#step-5">Step 5<br /><small>Explain Prediction</small></a></li>
+                <li><a href="#step-5">Step 5<br /><small>{% if contrastive %} {{contrastive}} {% else %} Explain Prediction {% endif %}</small></a></li>
             </ul>
 
             <div>
@@ -137,9 +137,15 @@
                     </div>
                 </div>
                 <div id="step-4" class="">
-                    <h2>Step 4 Content</h2>
-                    <div class="panel panel-default">
-                        <div class="panel-heading">My Details</div>
+                    <h2>Step 4: Prediction</h2>
+                    <h3> The datapoint belongs to class {{category}}.  The system can respond to counterfactual queries. Ask it questions like 'Why P[=Predicted Category] not Q [=Desired category]'. The system will generate explanation in Natural language, Histogram and provide Counterfactual Datapoints. Possible classes are: {{allclasses}}</h3>
+                    <form method="POST" action="{{url_for('index')}}">
+                      Why {{category}} not <input type = "text" name="desiredcategory" class="form-control" placeholder="Contrastive Class">
+                      <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+
+                    <!-- <div class="panel panel-default">
+                        <div class="panel-heading">Prediction</div>
                         <table class="table">
                             <tbody>
                                 <tr>
@@ -152,11 +158,11 @@
                                 </tr>
                             </tbody>
                         </table>
-                    </div>
+                    </div> -->
                 </div>
                 <div id="step-5" class="">
                     <div class="container">
-                        <h2>Explain Prediction</h2>
+                        <h2>Explain Prediction: {{ contrastive }}</h2>
                         <p> Each tab shows varying kind of predictions. Depending on the context and requirement, appropriate level of predictions may be made available to the user.</p>
                         <ul class="nav nav-pills">
                             <li class="active"><a data-toggle="pill" href="#home">Natural Language</a></li>
