@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>SHAP Dashboard</title>
     <meta charset="UTF-8">
@@ -10,9 +11,9 @@
     <!-- Optional Bootstrap theme -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
 
-        <!-- Include SmartWizard CSS -->
+    <!-- Include SmartWizard CSS -->
     <link href="../static/css/smartWizard/smart_wizard.min.css" rel="stylesheet" type="text/css" />
-    
+
     <!-- Optional SmartWizard theme -->
     <link href="../static/css/smartWizard/smart_wizard_theme_circles.min.css" rel="stylesheet" type="text/css" />
     <link href="../static/css/smartWizard/smart_wizard_theme_arrows.min.css" rel="stylesheet" type="text/css" />
@@ -22,15 +23,15 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
     <style>
-    .sw-main .sw-container {
-        overflow: visible;
-    }
+        .sw-main .sw-container {
+            overflow: visible;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
-        
+
         <form class="form-inline">
             <label>External Selects:</label>
             <div class="btn-group navbar-btn" role="group">
@@ -38,37 +39,39 @@
             </div>
         </form>
 
-        <br /><br /><br />
-        
+        <br />
+        <br />
+        <br />
+
         <!-- SmartWizard html -->
         <div id="smartwizard">
             <ul>
                 <li><a href="#step-1">Step 1<br /><small>{% if dataset %} {{dataset}} {% else %} Choose Dataset {% endif %}</small></a></li>
                 <li><a href="#step-2">Step 2<br /><small>{% if model %} {{model}} {% else %} Choose Model {% endif %}</small></a></li>
-                <li><a href="#step-3">Step 3<br /><small>Choose Datapoint</small></a></li>
+                <li><a href="#step-3">Step 3<br /><small>{% if datapoint %} {{datapoint}} {% else %} Choose Datapoint {% endif %}</small></a></li>
                 <li><a href="#step-4">Step 4<br /><small>See Prediction</small></a></li>
                 <li><a href="#step-5">Step 5<br /><small>Explain Prediction</small></a></li>
             </ul>
-            
+
             <div>
                 <div id="step-1" class="">
                     <h2>Choose Dataset</h2>
                     <!-- Material unchecked -->
                     <form action="{{url_for('index')}}" method="POST">
                         <div class="form-check">
-                          <input type="radio" class="form-check-input" id="materialUnchecked" name="dataset" value="IRIS">
-                          <label class="form-check-label" for="materialUnchecked">IRIS</label>
+                            <input type="radio" class="form-check-input" id="materialUnchecked" name="dataset" value="IRIS">
+                            <label class="form-check-label" for="materialUnchecked">IRIS</label>
                         </div>
 
                         <div class="form-check">
-                          <input type="radio" class="form-check-input" id="materialUnchecked" name="dataset" value="Mobile">
-                          <label class="form-check-label" for="materialUnchecked">Mobile</label>
+                            <input type="radio" class="form-check-input" id="materialUnchecked" name="dataset" value="Mobile">
+                            <label class="form-check-label" for="materialUnchecked">Mobile</label>
                         </div>
 
                         <!-- Material checked -->
                         <div class="form-check">
-                          <input type="radio" class="form-check-input" id="materialChecked" name="dataset" checked value="Boston">
-                          <label class="form-check-label" for="materialChecked">Boston Price</label>
+                            <input type="radio" class="form-check-input" id="materialChecked" name="dataset" checked value="Boston">
+                            <label class="form-check-label" for="materialChecked">Boston Price</label>
                         </div>
 
                         <button type="submit" class="btn btn-default" name="submit" value="submit">Submit</button>
@@ -78,24 +81,24 @@
                     <h2>Step 2: Choose Model</h2>
                     <form action="{{url_for('index')}}" method="POST">
                         <div class="form-check">
-                          <input type="radio" class="form-check-input" id="materialUnchecked" name="model" value="SVM">
-                          <label class="form-check-label" for="materialUnchecked">SVM</label>
+                            <input type="radio" class="form-check-input" id="materialUnchecked" name="model" value="SVM">
+                            <label class="form-check-label" for="materialUnchecked">SVM</label>
                         </div>
 
                         <div class="form-check">
-                          <input type="radio" class="form-check-input" id="materialUnchecked" name="model" value="RF">
-                          <label class="form-check-label" for="materialUnchecked">Random Forest</label>
+                            <input type="radio" class="form-check-input" id="materialUnchecked" name="model" value="RF">
+                            <label class="form-check-label" for="materialUnchecked">Random Forest</label>
                         </div>
 
                         <div class="form-check">
-                          <input type="radio" class="form-check-input" id="materialUnchecked" name="model" value="KNN">
-                          <label class="form-check-label" for="materialUnchecked">KNN</label>
+                            <input type="radio" class="form-check-input" id="materialUnchecked" name="model" value="KNN">
+                            <label class="form-check-label" for="materialUnchecked">KNN</label>
                         </div>
 
                         <!-- Material checked -->
                         <div class="form-check">
-                          <input type="radio" class="form-check-input" id="materialChecked" name="model" checked value="NN">
-                          <label class="form-check-label" for="materialChecked">Neural Net</label>
+                            <input type="radio" class="form-check-input" id="materialChecked" name="model" checked value="NN">
+                            <label class="form-check-label" for="materialChecked">Neural Net</label>
                         </div>
 
                         <button type="submit" class="btn btn-default" name="submit" value="submit">Submit</button>
@@ -103,32 +106,34 @@
                 </div>
                 <div id="step-3" class="">
                     <div class="row" style="text-align: center">
-                      Select any random point from the testing set or input your own features.
+                        Select any random point from the testing set or input your own features.
                     </div>
                     <br>
                     <br>
                     <div class="row">
-                      <div class="col-sm-6 col-md-6"> 
-                        <button type="submit" class="btn btn-default" name="random" value="random">Choose Random</button>
-                      </div>
-                      <div class="col-sm-6 col-md-6"> 
-                        <form>
-                          <div class="form-group">
-                            <label for="exampleInputEmail1">Email address</label>
-                            <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
-                            <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
-                          </div>
-                          <div class="form-group">
-                            <label for="exampleInputPassword1">Password</label>
-                            <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
-                          </div>
-                          <div class="form-check">
-                            <input type="checkbox" class="form-check-input" id="exampleCheck1">
-                            <label class="form-check-label" for="exampleCheck1">Check me out</label>
-                          </div>
-                          <button type="submit" class="btn btn-primary">Submit</button>
-                        </form>
-                      </div>
+                        <div class="col-sm-6 col-md-6">
+                          <form action="{{url_for('index')}}" method="POST">
+                            <button type="submit" class="btn btn-default" name="point" value="Random">Choose Random</button>
+                          </form>
+                        </div>
+                        <div class="col-sm-6 col-md-6">
+                            <form>
+                                <div class="form-group">
+                                    <label for="exampleInputEmail1">Email address</label>
+                                    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
+                                    <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="exampleInputPassword1">Password</label>
+                                    <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                                    <label class="form-check-label" for="exampleCheck1">Check me out</label>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
                 <div id="step-4" class="">
@@ -137,44 +142,49 @@
                         <div class="panel-heading">My Details</div>
                         <table class="table">
                             <tbody>
-                                <tr> <th>Name:</th> <td>Your Name</td> </tr>
-                                <tr> <th>Email:</th> <td>abc@example.com</td> </tr>
+                                <tr>
+                                    <th>Name:</th>
+                                    <td>Your Name</td>
+                                </tr>
+                                <tr>
+                                    <th>Email:</th>
+                                    <td>abc@example.com</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
                 <div id="step-5" class="">
                     <div class="container">
-  <h2>Explain Prediction</h2>
-  <p> Each tab shows varying kind of predictions. Depending on the context and requirement, appropriate level of predictions may be made available to the user.</p>
-  <ul class="nav nav-pills">
-    <li class="active"><a data-toggle="pill" href="#home">Natural Language</a></li>
-    <li><a data-toggle="pill" href="#menu1">Histogram</a></li>
-    <li><a data-toggle="pill" href="#menu2">Counterfactual</a></li>
-  </ul>
-  
-  <div class="tab-content">
-    <div id="home" class="tab-pane fade in active">
-      <h3>Natural Language</h3>
-      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-    </div>
-    <div id="menu1" class="tab-pane fade">
-      <h3>Histogram</h3>
-      <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-    </div>
-    <div id="menu2" class="tab-pane fade">
-      <h3>Counterfactual</h3>
-      <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam.</p>
-    </div>
-    </div>
-  </div>
-</div>
+                        <h2>Explain Prediction</h2>
+                        <p> Each tab shows varying kind of predictions. Depending on the context and requirement, appropriate level of predictions may be made available to the user.</p>
+                        <ul class="nav nav-pills">
+                            <li class="active"><a data-toggle="pill" href="#home">Natural Language</a></li>
+                            <li><a data-toggle="pill" href="#menu1">Histogram</a></li>
+                            <li><a data-toggle="pill" href="#menu2">Counterfactual</a></li>
+                        </ul>
 
+                        <div class="tab-content">
+                            <div id="home" class="tab-pane fade in active">
+                                <h3>Natural Language</h3>
+                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                            </div>
+                            <div id="menu1" class="tab-pane fade">
+                                <h3>Histogram</h3>
+                                <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                            </div>
+                            <div id="menu2" class="tab-pane fade">
+                                <h3>Counterfactual</h3>
+                                <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
             </div>
         </div>
-        
-        
+    </div>
+
     </div>
 
     <!-- Include jQuery -->
@@ -183,48 +193,43 @@
     <!-- Include SmartWizard JavaScript source -->
     <script type="text/javascript" src="../static/js/jquery.smartWizard.min.js"></script>
 
-   <script type="text/javascript">
-        $(document).ready(function(){
+    <script type="text/javascript">
+        window.location = "{{ location }}"
+        $(document).ready(function() {
             // Smart Wizard
-            $('#smartwizard').smartWizard({ 
-                    selected: 0, 
-                    theme: 'default',
-                    transitionEffect:'slide',
-                    toolbarSettings: {toolbarPosition: 'top',
-                                      toolbarExtraSelects: [
-                                            {label: 'Finish', css: 'btn-success', onClick: function(){ alert('Finish Clicked'); }},
-                                            {label: 'Cancel', css: 'btn-warning', onClick: function(){ $('#smartwizard').smartWizard("reset"); }}
-                                        ]
-                                    }
-                 });
-            $(function() {
-    $('button').click(function() {
-        $.ajax({
-            url: '/signUpUser',
-            data: $('form').serialize(),
-            type: 'POST',
-            success: function(response) {
-                console.log(response);
-            },
-            error: function(error) {
-                console.log(error);
-            }
-        });
-    });
-});
+            $('#smartwizard').smartWizard({
+                selected: 0,
+                theme: 'default',
+                transitionEffect: 'slide',
+                toolbarSettings: {
+                    toolbarPosition: 'top',
+                    toolbarExtraSelects: [{
+                        label: 'Finish',
+                        css: 'btn-success',
+                        onClick: function() {
+                            alert('Finish Clicked');
+                        }
+                    }, {
+                        label: 'Cancel',
+                        css: 'btn-warning',
+                        onClick: function() {
+                            $('#smartwizard').smartWizard("reset");
+                        }
+                    }]
+                }
+            });
 
-                                         
-            
             // External Select Events
             $("#reset-btn").on("click", function() {
                 // Reset wizard
                 $('#smartwizard').smartWizard("reset");
                 return true;
             });
-                       
+
             $('#smartwizard').smartWizard("theme", "arrows");
-            
-        });   
-    </script>  
+
+        });
+    </script>
 </body>
+
 </html>

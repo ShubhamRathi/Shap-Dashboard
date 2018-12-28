@@ -48,12 +48,15 @@ def index():
 	global model
 	if request.method == 'POST' and 'dataset' in request.form:
 		dataset = request.form['dataset']
-		return render_template('index.html', dataset=dataset)
+		return render_template('index.html', dataset=dataset, location = "#step-1")
 	if request.method == 'POST' and 'model' in request.form:
 		model = request.form['model']
 		print ("Dataset is " + str(dataset) + " and Model is " +str(model))
-		return render_template('index.html', dataset=dataset, model=model)
-	return render_template('index.html')
+		return render_template('index.html', dataset=dataset, model=model, location = "#step-2")
+	if request.method == 'POST' and 'point' in request.form:
+		datapoint = request.form['point']
+		return render_template('index.html', dataset=dataset, model=model, location = "#step-3", datapoint = "Random")
+	return render_template('index.html', location = "#")
 
 if __name__ == '__main__':
     app.run(debug=True)
