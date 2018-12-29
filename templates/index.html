@@ -138,7 +138,7 @@
                 </div>
                 <div id="step-4" class="row">
                     <h2>Step 4: Prediction</h2>
-                    <h3> The datapoint belongs to class {{category}}.  The system can respond to counterfactual queries. Ask it questions like 'Why P[=Predicted Category] not Q [=Desired category]'. The system will generate explanation in Natural language, Histogram and provide Counterfactual Datapoints. Possible classes are: {{allclasses}}</h3>
+                    <h3> The datapoint of the test set belongs to class {{category}}.  The system can respond to counterfactual queries. Ask it questions like 'Why P[=Predicted Category] not Q [=Desired category]'. The system will generate explanation in Natural language, Histogram and provide Counterfactual Datapoints. Possible classes are: {{allclasses}}</h3>
                     <form method="POST" action="{{url_for('index')}}">
                         <h3> Why {{category}} not <input type = "text" name="desiredcategory" class="form-control col-xs-2" placeholder="Contrastive Class"> </h3>
                         <br>
@@ -189,7 +189,7 @@
                             <div id="menu2" class="tab-pane fade">
                                 <h3>Counterfactual</h3>
                                 <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam.</p>
-                                {{data | safe}}
+                                {{df | safe}}
                             </div>
                         </div>
                     </div>
