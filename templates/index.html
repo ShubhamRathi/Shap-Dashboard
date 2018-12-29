@@ -23,9 +23,38 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
     <style>
-        .sw-main .sw-container {
+    .sw-main .sw-container {
             overflow: visible;
         }
+        
+        table.dataframe,
+        .dataframe th,
+        .dataframe td {
+            border: none;
+            border-bottom: 1px solid #C8C8C8;
+            border-collapse: collapse;
+            text-align: left;
+            padding: 10px;
+            margin-bottom: 40px;
+        }
+        
+        th {
+            background-color: #add8e6;
+            color: white;
+        }
+        
+        tr:nth-child(odd) {
+            background-color: #eee;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #fff;
+        }
+        
+        tr:hover {
+            background-color: #ffff99;
+        }
+    }
     </style>
 </head>
 
@@ -59,18 +88,18 @@
                     <!-- Material unchecked -->
                     <form action="{{url_for('index')}}" method="POST">
                         <div class="form-check">
-                            <input type="radio" class="form-check-input"  name="dataset" value="IRIS">
+                            <input type="radio" class="form-check-input" name="dataset" value="IRIS">
                             <label class="form-check-label">IRIS</label>
                         </div>
 
                         <div class="form-check">
-                            <input type="radio" class="form-check-input"  name="dataset" value="Mobile">
+                            <input type="radio" class="form-check-input" name="dataset" value="Mobile">
                             <label class="form-check-label">Mobile</label>
                         </div>
 
                         <!-- Material checked -->
                         <div class="form-check">
-                            <input type="radio" class="form-check-input"  name="dataset" checked value="Boston">
+                            <input type="radio" class="form-check-input" name="dataset" checked value="Boston">
                             <label class="form-check-label">Boston Price</label>
                         </div>
 
@@ -81,23 +110,23 @@
                     <h2>Step 2: Choose Model</h2>
                     <form action="{{url_for('index')}}" method="POST">
                         <div class="form-check">
-                            <input type="radio" class="form-check-input"  name="model" value="SVM">
+                            <input type="radio" class="form-check-input" name="model" value="SVM">
                             <label class="form-check-label">SVM</label>
                         </div>
 
                         <div class="form-check">
-                            <input type="radio" class="form-check-input"  name="model" value="RF">
+                            <input type="radio" class="form-check-input" name="model" value="RF">
                             <label class="form-check-label">Random Forest</label>
                         </div>
 
                         <div class="form-check">
-                            <input type="radio" class="form-check-input"  name="model" value="KNN">
+                            <input type="radio" class="form-check-input" name="model" value="KNN">
                             <label class="form-check-label">KNN</label>
                         </div>
 
                         <!-- Material checked -->
                         <div class="form-check">
-                            <input type="radio" class="form-check-input"  name="model" checked value="NN">
+                            <input type="radio" class="form-check-input" name="model" checked value="NN">
                             <label class="form-check-label">Neural Net</label>
                         </div>
 
@@ -183,7 +212,7 @@
                                 <h3>Histogram</h3>
                                 <p>Distribution of feature effects on the datapoint</p>
                                 <center>
-                                  <img src="../static/img/bar.png" class="img-thumbnail" alt="Bar Plot">
+                                    <img src="../static/img/bar.png" class="img-thumbnail" alt="Bar Plot">
                                 </center>
                             </div>
                             <div id="menu2" class="tab-pane fade">

@@ -149,6 +149,7 @@ def generateCounterfactual(dataset, model, noofneighbours, datapoint, shapvals, 
 		print ("result has " + str(len(result)))
 		df = pd.DataFrame()
 		df = df.append(result, ignore_index=True)
+		df = df.drop_duplicates()
 	else:
 		df = pd.DataFrame()
 	return df
