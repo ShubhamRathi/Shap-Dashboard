@@ -82,7 +82,8 @@ def returnColNames(dataset):
 
 def returnRandomDatapoint(dataset):
 	X_train,X_test,Y_train,Y_test = returnDataset(dataset)
-	return randint(0, len(X_test)-1)
+	# return randint(0, len(X_test)-1)
+	return 29
 
 def mergeTerms(terms):
 	ans = ""
@@ -144,9 +145,12 @@ def generateCounterfactual(dataset, model, noofneighbours, datapoint, shapvals, 
 	        newDatapoint[key] = X_train.iloc[point][key]
 	    if int(algo.predict([newDatapoint])) == int(desiredcategory):
 	        result.append(newDatapoint)
-	print ("result has " + str(len(result)))
-	df = pd.DataFrame()
-	df = df.append(result, ignore_index=True)
+	if len(result) > 0: 
+		print ("result has " + str(len(result)))
+		df = pd.DataFrame()
+		df = df.append(result, ignore_index=True)
+	else:
+		df = pd.DataFrame()
 	return df
 
 @app.route('/', methods=['GET', 'POST'])
@@ -191,6 +195,10 @@ def index():
 
 		# Add Counterfactual points
 		df = generateCounterfactual(dataset, model, 50, datapoint, shapvals, int(desiredcategory))
+		if len(df) == 0:
+			df = "Nothing to show"
+		else:
+			df = df.to_html()
 		return render_template('index.html', dataset=dataset, model=model, location = "#step-4", 
 			datapoint = "Random("+str(datapoint)+")", category = category, allclasses = list(freq.keys()), 
 			contrastive = contrastive, yP=yP, ynotQ=ynotQ, desiredcategory=desiredcategory, df=df)
