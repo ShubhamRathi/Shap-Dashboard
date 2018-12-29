@@ -59,19 +59,19 @@
                     <!-- Material unchecked -->
                     <form action="{{url_for('index')}}" method="POST">
                         <div class="form-check">
-                            <input type="radio" class="form-check-input" id="materialUnchecked" name="dataset" value="IRIS">
-                            <label class="form-check-label" for="materialUnchecked">IRIS</label>
+                            <input type="radio" class="form-check-input"  name="dataset" value="IRIS">
+                            <label class="form-check-label">IRIS</label>
                         </div>
 
                         <div class="form-check">
-                            <input type="radio" class="form-check-input" id="materialUnchecked" name="dataset" value="Mobile">
-                            <label class="form-check-label" for="materialUnchecked">Mobile</label>
+                            <input type="radio" class="form-check-input"  name="dataset" value="Mobile">
+                            <label class="form-check-label">Mobile</label>
                         </div>
 
                         <!-- Material checked -->
                         <div class="form-check">
-                            <input type="radio" class="form-check-input" id="materialChecked" name="dataset" checked value="Boston">
-                            <label class="form-check-label" for="materialChecked">Boston Price</label>
+                            <input type="radio" class="form-check-input"  name="dataset" checked value="Boston">
+                            <label class="form-check-label">Boston Price</label>
                         </div>
 
                         <button type="submit" class="btn btn-default" name="submit" value="submit">Submit</button>
@@ -81,24 +81,24 @@
                     <h2>Step 2: Choose Model</h2>
                     <form action="{{url_for('index')}}" method="POST">
                         <div class="form-check">
-                            <input type="radio" class="form-check-input" id="materialUnchecked" name="model" value="SVM">
-                            <label class="form-check-label" for="materialUnchecked">SVM</label>
+                            <input type="radio" class="form-check-input"  name="model" value="SVM">
+                            <label class="form-check-label">SVM</label>
                         </div>
 
                         <div class="form-check">
-                            <input type="radio" class="form-check-input" id="materialUnchecked" name="model" value="RF">
-                            <label class="form-check-label" for="materialUnchecked">Random Forest</label>
+                            <input type="radio" class="form-check-input"  name="model" value="RF">
+                            <label class="form-check-label">Random Forest</label>
                         </div>
 
                         <div class="form-check">
-                            <input type="radio" class="form-check-input" id="materialUnchecked" name="model" value="KNN">
-                            <label class="form-check-label" for="materialUnchecked">KNN</label>
+                            <input type="radio" class="form-check-input"  name="model" value="KNN">
+                            <label class="form-check-label">KNN</label>
                         </div>
 
                         <!-- Material checked -->
                         <div class="form-check">
-                            <input type="radio" class="form-check-input" id="materialChecked" name="model" checked value="NN">
-                            <label class="form-check-label" for="materialChecked">Neural Net</label>
+                            <input type="radio" class="form-check-input"  name="model" checked value="NN">
+                            <label class="form-check-label">Neural Net</label>
                         </div>
 
                         <button type="submit" class="btn btn-default" name="submit" value="submit">Submit</button>
@@ -112,9 +112,9 @@
                     <br>
                     <div class="row">
                         <div class="col-sm-6 col-md-6">
-                          <form action="{{url_for('index')}}" method="POST">
-                            <button type="submit" class="btn btn-default" name="point" value="Random">Choose Random</button>
-                          </form>
+                            <form action="{{url_for('index')}}" method="POST">
+                                <button type="submit" class="btn btn-default" name="point" value="Random">Choose Random</button>
+                            </form>
                         </div>
                         <div class="col-sm-6 col-md-6">
                             <form>
@@ -136,12 +136,13 @@
                         </div>
                     </div>
                 </div>
-                <div id="step-4" class="">
+                <div id="step-4" class="row">
                     <h2>Step 4: Prediction</h2>
                     <h3> The datapoint belongs to class {{category}}.  The system can respond to counterfactual queries. Ask it questions like 'Why P[=Predicted Category] not Q [=Desired category]'. The system will generate explanation in Natural language, Histogram and provide Counterfactual Datapoints. Possible classes are: {{allclasses}}</h3>
                     <form method="POST" action="{{url_for('index')}}">
-                      Why {{category}} not <input type = "text" name="desiredcategory" class="form-control" placeholder="Contrastive Class">
-                      <button type="submit" class="btn btn-primary">Submit</button>
+                        <h3> Why {{category}} not <input type = "text" name="desiredcategory" class="form-control col-xs-2" placeholder="Contrastive Class"> </h3>
+                        <br>
+                        <button type="submit" class="btn btn-primary">Ask</button>
                     </form>
 
                     <!-- <div class="panel panel-default">
@@ -173,11 +174,14 @@
                         <div class="tab-content">
                             <div id="home" class="tab-pane fade in active">
                                 <h3>Natural Language</h3>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                                <h4>Why {{category}}?</h4>
+                                <p> {{yP}} </p>
+                                <h4>Why not {{desiredcategory}}?</h4>
+                                <p> {{ynotQ}} </p>
                             </div>
                             <div id="menu1" class="tab-pane fade">
                                 <h3>Histogram</h3>
-                                <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                                <p>Distribution of feature effects on the datapoint</p>
                             </div>
                             <div id="menu2" class="tab-pane fade">
                                 <h3>Counterfactual</h3>
@@ -233,8 +237,46 @@
             });
 
             $('#smartwizard').smartWizard("theme", "arrows");
-
         });
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js'></script>
+    <script>
+        // bar chart data
+         // bar chart data
+      var barData = {
+        labels : [
+          {% for item in labels %}
+           "{{ item }}",
+          {% endfor %}
+  ],
+        datasets : [{
+          fillColor: "rgba(151,187,205,0.2)",
+          strokeColor: "rgba(151,187,205,1)",
+          pointColor: "rgba(151,187,205,1)",
+          data : [
+            {% for item in values %}
+               "{{ item }}",
+              {% endfor %}
+      ]
+          }
+        ]
+      }
+     // get bar chart canvas
+     var mychart = document.getElementById("chart").getContext("2d");
+       steps = 10
+       max = {{max}}
+     // draw bar chart
+     new Chart(mychart).Bar(barData, {
+       scaleOverride: true,
+       scaleSteps: steps,
+       scaleStepWidth: Math.ceil(max / steps),
+       scaleStartValue: 0,
+       scaleShowVerticalLines: true,
+       scaleShowGridLines : true,
+       barShowStroke : true,
+       scaleShowLabels: true
+       }
+     );
     </script>
 </body>
 

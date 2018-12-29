@@ -64,6 +64,45 @@ def makePrediction(dataset, model, datapoint):
 	frequencies = dict(zip(unique, counts))
 	return m.predict([X_test.iloc[0,:]]), shap_values, frequencies, X_train.columns
 
+def mergeTerms(terms):
+	ans = ""
+	if len(terms) > 1: 
+		for tup in terms[:-1]:
+			ans = ans + tup[0] + ", "
+		ans = ans + " and " + terms[-1][0] + "."
+	else:
+		ans = terms[0][0] + "."
+	return ans
+
+def whyP(shap_values, category, colnames):
+	shapdict = dict(zip(colnames, shap_values[int(category)]))
+	Pos = {k: v for k, v in shapdict.items() if v > 0}
+	P = sorted(Pos.items(), key=lambda kv: kv[1], reverse=True)
+	n = len(P)//3
+	if n > 0:
+		newP = [P[i * n:(i + 1) * n] for i in range((len(P) + n - 1) // n )]
+		whyPstring = "Algorithms classification was primarily influenced by " + mergeTerms(newP[0])
+		whyPstring = whyPstring + " Factors which moderately affected the outcome were " + mergeTerms(newP[1])
+		whyPstring = whyPstring + " Factors which trivially affected the outcome were " + mergeTerms(newP[2])
+	else:
+		whyPstring = "Algorithms classification was primarily influenced by" + mergeTerms(P)
+	return whyPstring
+
+def notQ(shap_values, desiredcategory, colnames):
+	shapdict = dict(zip(colnames, shap_values[int(desiredcategory)]))
+	Neg = {k: v for k, v in shapdict.items() if v < 0}
+	P = sorted(Neg.items(), key=lambda kv: kv[1])
+	n = len(P)//3
+	if n > 0:
+		newP = [P[i * n:(i + 1) * n] for i in range((len(P) + n - 1) // n )]
+		whyPstring = "Algorithms anti-classification was primarily influenced by " + mergeTerms(newP[0])
+		whyPstring = whyPstring + " Factors which moderately affected the negative outcome were " + mergeTerms(newP[1])
+		whyPstring = whyPstring + " Factors which trivially affected the negative outcome were " + mergeTerms(newP[2])
+	else:
+		whyPstring = "Algorithms anti-classification was primarily influenced by" + mergeTerms(P)
+	return whyPstring
+
+
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -88,8 +127,13 @@ def index():
 	if request.method == 'POST' and 'desiredcategory' in request.form:
 		desiredcategory = request.form['desiredcategory']
 		contrastive = "Why " + str(category[0]) + " not " + str(desiredcategory)
+		yP = whyP(shapvals, int(category[0]), colnames)
+		ynotQ = notQ(shapvals, int(desiredcategory), colnames)
+		shapdict = dict(zip(colnames, shapvals[int(category)]))
+
 		return render_template('index.html', dataset=dataset, model=model, location = "#step-4", 
-			datapoint = "Random", category = category[0], allclasses = list(freq.keys()), contrastive = contrastive )
+			datapoint = "Random", category = category[0], allclasses = list(freq.keys()), 
+			contrastive = contrastive, yP=yP, ynotQ=ynotQ, desiredcategory=desiredcategory )
 	return render_template('index.html', location = "#")
 
 if __name__ == '__main__':
