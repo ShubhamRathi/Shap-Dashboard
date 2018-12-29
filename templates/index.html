@@ -182,10 +182,14 @@
                             <div id="menu1" class="tab-pane fade">
                                 <h3>Histogram</h3>
                                 <p>Distribution of feature effects on the datapoint</p>
+                                <center>
+                                  <img src="../static/img/bar.png" class="img-thumbnail" alt="Bar Plot">
+                                </center>
                             </div>
                             <div id="menu2" class="tab-pane fade">
                                 <h3>Counterfactual</h3>
                                 <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam.</p>
+                                {{data | safe}}
                             </div>
                         </div>
                     </div>
@@ -238,45 +242,6 @@
 
             $('#smartwizard').smartWizard("theme", "arrows");
         });
-    </script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js'></script>
-    <script>
-        // bar chart data
-         // bar chart data
-      var barData = {
-        labels : [
-          {% for item in labels %}
-           "{{ item }}",
-          {% endfor %}
-  ],
-        datasets : [{
-          fillColor: "rgba(151,187,205,0.2)",
-          strokeColor: "rgba(151,187,205,1)",
-          pointColor: "rgba(151,187,205,1)",
-          data : [
-            {% for item in values %}
-               "{{ item }}",
-              {% endfor %}
-      ]
-          }
-        ]
-      }
-     // get bar chart canvas
-     var mychart = document.getElementById("chart").getContext("2d");
-       steps = 10
-       max = {{max}}
-     // draw bar chart
-     new Chart(mychart).Bar(barData, {
-       scaleOverride: true,
-       scaleSteps: steps,
-       scaleStepWidth: Math.ceil(max / steps),
-       scaleStartValue: 0,
-       scaleShowVerticalLines: true,
-       scaleShowGridLines : true,
-       barShowStroke : true,
-       scaleShowLabels: true
-       }
-     );
     </script>
 </body>
 

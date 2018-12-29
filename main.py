@@ -6,6 +6,8 @@ import shap
 from sklearn.datasets import load_boston
 from sklearn.model_selection import train_test_split
 import shap
+import matplotlib.pyplot as plt
+from sklearn.neighbors import NearestNeighbors
 
 app = Flask(__name__)
 
@@ -16,7 +18,7 @@ def makePrediction(dataset, model, datapoint):
 	if dataset == 'IRIS':
 		X_train,X_test,Y_train,Y_test = train_test_split(*shap.datasets.iris(), test_size=0.2, random_state=0)
 	elif dataset == 'Boston':
-		X_train,X_test,Y_train,Y_test = train_test_split(*shap.datasets.iris(), test_size=0.2, random_state=0)
+		X_train,X_test,Y_train,Y_test = train_test_split(*shap.datasets.boston(), test_size=0.2, random_state=0)
 	elif dataset == 'Mobile':
 		df = pd.read_csv('../Data/train.csv')
 		test = pd.read_csv('../Data/test.csv')
@@ -102,7 +104,77 @@ def notQ(shap_values, desiredcategory, colnames):
 		whyPstring = "Algorithms anti-classification was primarily influenced by" + mergeTerms(P)
 	return whyPstring
 
+def plot_bar_x(shapvals, label):
+    # this is for plotting purpose
+    index = np.arange(len(label))
+    plt.bar(index, shapvals)
+    plt.xlabel('Feature', fontsize=8)
+    plt.ylabel('Impact', fontsize=8)
+    plt.xticks(index, label, fontsize=8, rotation=30)
+    plt.title('Feature Impact')
+    plt.savefig("./static/img/bar.png")
 
+def generateCounterfactual(dataset, model, noofneighbours, datapoint, shapvals, desiredcategory):
+	if dataset == 'IRIS':
+		X_train,X_test,Y_train,Y_test = train_test_split(*shap.datasets.iris(), test_size=0.2, random_state=0)
+	elif dataset == 'Boston':
+		X_train,X_test,Y_train,Y_test = train_test_split(*shap.datasets.iris(), test_size=0.2, random_state=0)
+	elif dataset == 'Mobile':
+		df = pd.read_csv('../Data/train.csv')
+		test = pd.read_csv('../Data/test.csv')
+		df.isnull().sum().max()
+		y_t = np.array(df['price_range'])
+		X_t = df
+		X_t = df.drop(['price_range'], axis=1)
+		X_t = np.array(X_t)
+		from sklearn.preprocessing import MinMaxScaler
+		scaler = MinMaxScaler()
+		X_t = scaler.fit_transform(X_t)
+		X_train,X_test,Y_train,Y_test = train_test_split(X_t,y_t,test_size=.20,random_state=42)
+
+		X_train = pd.DataFrame(X_train)
+		X_train.columns = df.columns[:-1]
+		X_train.index = X_train.index + 1
+
+		X_test = pd.DataFrame(X_test)
+		X_test.columns = df.columns[:-1]
+		X_test.index = X_test.index + 1
+
+		Y_train = pd.DataFrame(Y_train)
+		Y_train.columns = Y_train.columns + 1
+		Y_train.index = Y_train.index + 1
+
+		Y_test = pd.DataFrame(Y_test)
+		Y_test.columns = Y_test.columns + 1
+		Y_test.index = Y_test.index + 1
+
+	if model == "KNN":
+		m = sklearn.neighbors.KNeighborsClassifier()
+	elif model == "SVM":
+		m = sklearn.svm.SVC(kernel='linear', probability=True)
+	elif model == "RF":
+		from sklearn.ensemble import RandomForestClassifier
+		m = RandomForestClassifier(n_estimators=100, max_depth=None, min_samples_split=2, random_state=0)
+	elif model == "NN":
+		from sklearn.neural_network import MLPClassifier
+		m = MLPClassifier(solver='lbfgs', alpha=1e-1, hidden_layer_sizes=(5, 2), random_state=0)
+	m.fit(X_train, Y_train)
+	neigh = NearestNeighbors(n_neighbors=noofneighbours) # Add parameter for this
+	neigh.fit(X_train)
+	newDatapoint = X_test.iloc[datapoint] # Add Datapoint
+	out = neigh.kneighbors([newDatapoint])
+
+	shapdict = dict(zip(X_train.columns, shapvals)) # Add Shap list parameter
+	MutateValues = {k: v for k, v in shapdict.items() if v < 0}
+	result = []
+	for point in out[1][0]:
+	    for key, value in MutateValues.items():
+	        newDatapoint[key] = X_train.iloc[point][key]
+	    if m.predict([newDatapoint]) == desiredcategory: # Add Parameter
+	        result.append(newDatapoint)
+	print ("Result has: " +str(len(result)))
+	print (result)
+	return df.from_dict(result)[:5]
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -125,15 +197,21 @@ def index():
 		return render_template('index.html', dataset=dataset, model=model, location = "#step-3", 
 			datapoint = "Random", category = category[0], allclasses = list(freq.keys()) )
 	if request.method == 'POST' and 'desiredcategory' in request.form:
+		# Explanations
 		desiredcategory = request.form['desiredcategory']
 		contrastive = "Why " + str(category[0]) + " not " + str(desiredcategory)
 		yP = whyP(shapvals, int(category[0]), colnames)
 		ynotQ = notQ(shapvals, int(desiredcategory), colnames)
-		shapdict = dict(zip(colnames, shapvals[int(category)]))
 
+		# Add Plot
+		plot_bar_x(shapvals[int(category[0])], colnames)
+
+		# Add Counterfactual points
+		df = generateCounterfactual(dataset, model, 70, 0, shapvals[int(category[0])], int(desiredcategory))
+		print (df)
 		return render_template('index.html', dataset=dataset, model=model, location = "#step-4", 
 			datapoint = "Random", category = category[0], allclasses = list(freq.keys()), 
-			contrastive = contrastive, yP=yP, ynotQ=ynotQ, desiredcategory=desiredcategory )
+			contrastive = contrastive, yP=yP, ynotQ=ynotQ, desiredcategory=desiredcategory, data=df.to_html())
 	return render_template('index.html', location = "#")
 
 if __name__ == '__main__':
