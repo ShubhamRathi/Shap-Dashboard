@@ -131,6 +131,7 @@ def main():
 		X_train,X_test,Y_train,Y_test = returnDataset(ds)
 		ranges = generateRanges(len(X_test))
 		for datapoint in range(0, len(X_test)):
+			print ("Processing datapoint #" +str(datapoint))
 			if datapoint in ranges:
 				send_mail(datapoint+"pc of " + str(algo) + " done")
 			category = makePrediction(ds, algo, datapoint)
