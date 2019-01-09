@@ -119,6 +119,9 @@ def send_mail():
 	server.sendmail("rathishubham1103@gmail.com", "shubhamiiitbackup@gmail.com", msg)
 	server.quit()
 
+def generateRanges(number):
+	return [int(0.25 * number), int(0.5 * number), int(0.75 * number)]
+
 def main():
 	algos = ["SVM"]
 	ds = "Mobile"
@@ -126,7 +129,10 @@ def main():
 	statistics = []
 	for algo in algos:
 		X_train,X_test,Y_train,Y_test = returnDataset(ds)
+		ranges = generateRanges(len(X_test))
 		for datapoint in range(0, len(X_test)):
+			if datapoint in ranges:
+				send_mail(datapoint+"pc of " + str(algo) + " done")
 			category = makePrediction(ds, algo, datapoint)
 			shapvals = returnSHAP(ds, algo, datapoint)
 			columns = returnColNames(ds)
