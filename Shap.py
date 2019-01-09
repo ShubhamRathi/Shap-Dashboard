@@ -103,6 +103,22 @@ def generateCounterfactual(dataset, model, noofneighbours, datapoint, shapvals, 
 		df = pd.DataFrame()
 	return df
 
+def send_mail():
+	import smtplib
+	server = smtplib.SMTP('smtp.gmail.com', 587)
+	server.starttls()
+	#Next, log in to the server
+	server.login("rathishubham1103", "Duucatibike123%")
+	FROM= "script@shap-dashboard.com"
+	SUBJECT= "Script Updates"
+	TEXT="Testing"
+	TO=["shubhamiiitbackup@gmail.com"]
+	#Send the mail
+	msg = """From: %s\nTo: %s\nSubject: %s\n\n%s
+	""" % (FROM, ", ".join(TO), SUBJECT, TEXT)
+	server.sendmail("rathishubham1103@gmail.com", "shubhamiiitbackup@gmail.com", msg)
+	server.quit()
+
 def main():
 	algos = ["KNN", "SVM", "RF", "NN"]
 	ds = "Mobile"
@@ -128,6 +144,6 @@ def main():
 				statistics.append(stat)
 		report = pd.DataFrame(statistics, columns = cols)
 		report.to_csv("./Results/"+algo+".csv")
-		print("Report generated for " + str(algo))
+		send_mail("Report generated for " + str(algo))
 
 main()

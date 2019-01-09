@@ -88,7 +88,7 @@
                     <!-- Material unchecked -->
                     <form action="{{url_for('index')}}" method="POST">
                         <div class="form-check">
-                            <input type="radio" class="form-check-input" name="dataset" value="IRIS">
+                            <input type="radio" class="form-check-input" name="dataset" value="IRIS" checked>
                             <label class="form-check-label">IRIS</label>
                         </div>
 
@@ -96,13 +96,6 @@
                             <input type="radio" class="form-check-input" name="dataset" value="Mobile">
                             <label class="form-check-label">Mobile</label>
                         </div>
-
-                        <!-- Material checked -->
-                        <div class="form-check">
-                            <input type="radio" class="form-check-input" name="dataset" checked value="Boston">
-                            <label class="form-check-label">Boston Price</label>
-                        </div>
-
                         <button type="submit" class="btn btn-default" name="submit" value="submit">Submit</button>
                     </form>
                 </div>
@@ -145,24 +138,6 @@
                                 <button type="submit" class="btn btn-default" name="point" value="Random">Choose Random</button>
                             </form>
                         </div>
-                        <div class="col-sm-6 col-md-6">
-                            <form>
-                                <div class="form-group">
-                                    <label for="exampleInputEmail1">Email address</label>
-                                    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
-                                    <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="exampleInputPassword1">Password</label>
-                                    <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
-                                </div>
-                                <div class="form-check">
-                                    <input type="checkbox" class="form-check-input" id="exampleCheck1">
-                                    <label class="form-check-label" for="exampleCheck1">Check me out</label>
-                                </div>
-                                <button type="submit" class="btn btn-primary">Submit</button>
-                            </form>
-                        </div>
                     </div>
                 </div>
                 <div id="step-4" class="row">
@@ -173,22 +148,6 @@
                         <br>
                         <button type="submit" class="btn btn-primary">Ask</button>
                     </form>
-
-                    <!-- <div class="panel panel-default">
-                        <div class="panel-heading">Prediction</div>
-                        <table class="table">
-                            <tbody>
-                                <tr>
-                                    <th>Name:</th>
-                                    <td>Your Name</td>
-                                </tr>
-                                <tr>
-                                    <th>Email:</th>
-                                    <td>abc@example.com</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div> -->
                 </div>
                 <div id="step-5" class="">
                     <div class="container">
@@ -217,7 +176,7 @@
                             </div>
                             <div id="menu2" class="tab-pane fade">
                                 <h3>Counterfactual</h3>
-                                <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam.</p>
+                                <p>See table below</p>
                                 {{df | safe}}
                             </div>
                         </div>

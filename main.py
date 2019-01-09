@@ -9,6 +9,7 @@ import shap
 import matplotlib.pyplot as plt
 from sklearn.neighbors import NearestNeighbors
 from random import randint
+from pandas.testing import assert_frame_equal
 
 app = Flask(__name__)
 
@@ -112,21 +113,22 @@ def whyPnotQ(shap_values, category, colnames, anti):
 	n = len(P)//3
 	if n > 0:
 		newP = [P[i * n:(i + 1) * n] for i in range((len(P) + n - 1) // n )]
-		ans = "Algorithms " + classification + "classification was primarily influenced by " + mergeTerms(newP[0])
+		ans = "Algorithms " + classification + " classification was primarily influenced by " + mergeTerms(newP[0])
 		ans = ans + " Factors which moderately affected the outcome were " + mergeTerms(newP[1])
 		ans = ans + " Factors which trivially affected the outcome were " + mergeTerms(newP[2])
 	else:
-		ans = "Algorithms " + classification + " classification was primarily influenced by" + mergeTerms(P)
+		ans = "Algorithms " + classification + " classification was primarily influenced by " + mergeTerms(P)
 	return ans
 
 def plot_bar_x(shapvals, label):
     # this is for plotting purpose
     index = np.arange(len(label))
-    plt.bar(index, shapvals)
+    plt.bar(index, shapvals, width=0.8)
     plt.xlabel('Feature', fontsize=8)
     plt.ylabel('Impact', fontsize=8)
-    plt.xticks(index, label, fontsize=8, rotation=30)
+    plt.xticks(index, label, fontsize=8, rotation=90)
     plt.title('Feature Impact')
+    plt.tight_layout()
     plt.savefig("./static/img/bar.png")
 
 def generateCounterfactual(dataset, model, noofneighbours, datapoint, shapvals, desiredcategory):
@@ -139,17 +141,24 @@ def generateCounterfactual(dataset, model, noofneighbours, datapoint, shapvals, 
 	neigh.fit(X_train)
 	out = neigh.kneighbors([X_test.iloc[datapoint]])
 	newDatapoint = X_test.iloc[datapoint]
+	origdatapoint = X_test.iloc[datapoint]
 	result = []
 	for point in out[1][0]:
 	    for key, value in MutateValues.items():
 	        newDatapoint[key] = X_train.iloc[point][key]
 	    if int(algo.predict([newDatapoint])) == int(desiredcategory):
 	        result.append(newDatapoint)
-	if len(result) > 0: 
-		print ("result has " + str(len(result)))
+	if len(result) > 0:
 		df = pd.DataFrame()
 		df = df.append(result, ignore_index=True)
-		df = df.drop_duplicates()
+
+		dp = pd.DataFrame() # Original Datapoint
+		dp = df.append([origdatapoint], ignore_index=True)
+		df = pd.concat([dp, df])
+		df = df.drop_duplicates() # New Datapoints
+		if len(df) == 1 and assert_frame_equal(df, dp, check_dtype=False):
+			print ("Dataframes are equal.")
+			return pd.DataFrame()
 	else:
 		df = pd.DataFrame()
 	return df
@@ -188,6 +197,7 @@ def index():
 		# Explanations
 		desiredcategory = request.form['desiredcategory']
 		contrastive = "Why " + str(category) + " not " + str(desiredcategory)
+		print (contrastive)
 		yP = whyPnotQ(shapvals, category, colnames, False)
 		ynotQ = whyPnotQ(shapvals, int(desiredcategory), colnames, True)
 
