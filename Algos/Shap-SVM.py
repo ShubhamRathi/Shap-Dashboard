@@ -133,7 +133,7 @@ def main():
 		for datapoint in range(0, len(X_test)):
 			print ("Processing datapoint #" +str(datapoint))
 			if datapoint in ranges:
-				send_mail(str(datapoint)+"%% of " + str(algo) + " done")
+				send_mail(str(datapoint)+"% of " + str(algo) + " done")
 			category = makePrediction(ds, algo, datapoint)
 			shapvals = returnSHAP(ds, algo, datapoint)
 			columns = returnColNames(ds)
