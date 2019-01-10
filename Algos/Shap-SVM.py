@@ -103,15 +103,15 @@ def generateCounterfactual(dataset, model, noofneighbours, datapoint, shapvals, 
 		df = pd.DataFrame()
 	return df
 
-def send_mail():
+def send_mail(subject):
 	import smtplib
 	server = smtplib.SMTP('smtp.gmail.com', 587)
 	server.starttls()
 	#Next, log in to the server
 	server.login("rathishubham1103", "Duucatibike123%")
 	FROM= "script@shap-dashboard.com"
-	SUBJECT= "Script Updates"
-	TEXT="Testing"
+	SUBJECT= subject
+	TEXT="See subject"
 	TO=["shubhamiiitbackup@gmail.com"]
 	#Send the mail
 	msg = """From: %s\nTo: %s\nSubject: %s\n\n%s
@@ -133,7 +133,7 @@ def main():
 		for datapoint in range(0, len(X_test)):
 			print ("Processing datapoint #" +str(datapoint))
 			if datapoint in ranges:
-				send_mail(datapoint+"pc of " + str(algo) + " done")
+				send_mail(str(datapoint)+"%% of " + str(algo) + " done")
 			category = makePrediction(ds, algo, datapoint)
 			shapvals = returnSHAP(ds, algo, datapoint)
 			columns = returnColNames(ds)
