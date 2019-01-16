@@ -136,7 +136,10 @@ def main():
 	for algo in algos:
 		X_train,X_test,Y_train,Y_test = returnDataset(ds)
 		ranges = generateRanges(len(X_test))
-		for datapoint in range(int(round(float(sys.argv[2]))) * len(X_test), int(round(float(sys.argv[3]))) * len(X_test)):
+		start = float(sys.argv[2]) 
+		end = float(sys.argv[3])
+		segment = str(sys.argv[4])
+		for datapoint in range(start * len(X_test), end * len(X_test)):
 			print ("Processing datapoint #" +str(datapoint))
 			if datapoint in ranges:
 				send_mail(str((datapoint/len(X_test))*100)+"% of CF Report for" + str(algo) + " done")
@@ -152,6 +155,6 @@ def main():
 				if len(df) > 0:
 					send_mail("["+str(algo)+"] Found " + str(len(len(df))) + "CF points for # " + str(datapoint))
 		report = pd.DataFrame(statistics, columns = cols)
-		report.to_csv("./Results/CF/"+algo+".csv")
+		report.to_csv("./Results/CF/"+algo+str(segment)+".csv")
 
 main()
