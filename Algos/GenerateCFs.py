@@ -136,7 +136,7 @@ def main():
 	for algo in algos:
 		X_train,X_test,Y_train,Y_test = returnDataset(ds)
 		ranges = generateRanges(len(X_test))
-		for datapoint in range(float(sys.argv[2]) * len(X_test), float(sys.argv[2]) * len(X_test)):
+		for datapoint in range(int(round(float(sys.argv[2]))) * len(X_test), int(round(float(sys.argv[3]))) * len(X_test)):
 			print ("Processing datapoint #" +str(datapoint))
 			if datapoint in ranges:
 				send_mail(str((datapoint/len(X_test))*100)+"% of CF Report for" + str(algo) + " done")
