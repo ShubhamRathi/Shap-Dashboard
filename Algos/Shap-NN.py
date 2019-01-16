@@ -89,16 +89,22 @@ def generateCounterfactual(dataset, model, noofneighbours, datapoint, shapvals, 
 	neigh.fit(X_train)
 	out = neigh.kneighbors([X_test.iloc[datapoint]])
 	newDatapoint = X_test.iloc[datapoint]
+	origdatapoint = newDatapoint
 	result = []
 	for point in out[1][0]:
 	    for key, value in MutateValues.items():
 	        newDatapoint[key] = X_train.iloc[point][key]
 	    if int(algo.predict([newDatapoint])) == int(desiredcategory):
 	        result.append(newDatapoint)
-	if len(result) > 0: 
+	if len(result) > 0:
 		df = pd.DataFrame()
-		df = df.append(result, ignore_index=True)
-		df = df.drop_duplicates()
+		df = df.append(result, ignore_index=True) # Collected Counterfactual Points
+		df = df.drop_duplicates() # New Datapoints
+
+		dp = pd.DataFrame() 
+		dp = df.append([origdatapoint], ignore_index=True) # Original Datapoint
+		df = pd.concat([dp, df])
+		df = df.drop_duplicates(keep = False)
 	else:
 		df = pd.DataFrame()
 	return df
@@ -125,7 +131,7 @@ def generateRanges(number):
 def main():
 	algos = ["NN"]
 	ds = "Mobile"
-	cols = ["Datapoint No.", "Predicted Class", "Desired Class", "Total Counterfactual Points", "Total Common points"]
+	cols = ["Datapoint No.", "P", "Q", "Total Counterfactual Points"]
 	statistics = []
 	for algo in algos:
 		X_train,X_test,Y_train,Y_test = returnDataset(ds)
@@ -133,7 +139,7 @@ def main():
 		for datapoint in range(0, len(X_test)):
 			print ("Processing datapoint #" +str(datapoint))
 			if datapoint in ranges:
-				send_mail(str(datapoint)+"% of " + str(algo) + " done")
+				send_mail(str((datapoint/len(X_test))*100)+"% of CF Report" + str(algo) + " done")
 			category = makePrediction(ds, algo, datapoint)
 			shapvals = returnSHAP(ds, algo, datapoint)
 			columns = returnColNames(ds)
@@ -141,16 +147,13 @@ def main():
 			classes.remove(category)
 			for desiredcategory in classes:
 				df = generateCounterfactual(ds, algo, 50, datapoint, shapvals, desiredcategory)
-				if len(df) > 0:
-					joindf = pd.merge(X_train, df, how='inner')
-					if len(joindf) > 0:
-						print ("Found overlapping points")
-					stat = [datapoint, category, desiredcategory, len(df), len(joindf)]
-				else:
-					stat = [datapoint, category, desiredcategory, 0, 0]
+				stat = [datapoint, category, desiredcategory, len(df)]
 				statistics.append(stat)
+				if len(df) > 0:
+					print("Found a non-zero DF\n")
+					print(stat)
 		report = pd.DataFrame(statistics, columns = cols)
-		report.to_csv("./Results/"+algo+".csv")
-		send_mail("["+ds+"] Report generated for " + str(algo))
+		report.to_csv("./Results/CF/"+algo+".csv")
+		send_mail("["+ds+"] CF Report generated for " + str(algo))
 
 main()

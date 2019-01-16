@@ -83,8 +83,7 @@ def returnColNames(dataset):
 
 def returnRandomDatapoint(dataset):
 	X_train,X_test,Y_train,Y_test = returnDataset(dataset)
-	# return randint(0, len(X_test)-1)
-	return 29
+	return randint(0, len(X_test)-1)
 
 def mergeTerms(terms):
 	ans = ""
@@ -150,15 +149,13 @@ def generateCounterfactual(dataset, model, noofneighbours, datapoint, shapvals, 
 	        result.append(newDatapoint)
 	if len(result) > 0:
 		df = pd.DataFrame()
-		df = df.append(result, ignore_index=True)
-
-		dp = pd.DataFrame() # Original Datapoint
-		dp = df.append([origdatapoint], ignore_index=True)
-		df = pd.concat([dp, df])
+		df = df.append(result, ignore_index=True) # Collected Counterfactual Points
 		df = df.drop_duplicates() # New Datapoints
-		if len(df) == 1 and assert_frame_equal(df, dp, check_dtype=False):
-			print ("Dataframes are equal.")
-			return pd.DataFrame()
+
+		dp = pd.DataFrame() 
+		dp = df.append([origdatapoint], ignore_index=True) # Original Datapoint
+		df = pd.concat([dp, df])
+		df = df.drop_duplicates(keep = False)
 	else:
 		df = pd.DataFrame()
 	return df
