@@ -1,4 +1,4 @@
-import sklearn
+import sklearn, sys
 from sklearn.model_selection import train_test_split
 import numpy as np
 import pandas as pd
@@ -129,7 +129,7 @@ def generateRanges(number):
 	return [int(0.25 * number), int(0.5 * number), int(0.75 * number)]
 
 def main():
-	algos = sys.argv[1]
+	algos = [sys.argv[1]]
 	ds = "Mobile"
 	cols = ["Datapoint No.", "P", "Q", "Total Counterfactual Points"]
 	statistics = []
