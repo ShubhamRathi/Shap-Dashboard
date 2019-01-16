@@ -139,7 +139,7 @@ def main():
 		start = float(sys.argv[2]) 
 		end = float(sys.argv[3])
 		segment = str(sys.argv[4])
-		for datapoint in range(start * len(X_test), end * len(X_test)):
+		for datapoint in range(int(start * len(X_test)), int(end * len(X_test))):
 			print ("Processing datapoint #" +str(datapoint))
 			if datapoint in ranges:
 				send_mail(str((datapoint/len(X_test))*100)+"% of CF Report for" + str(algo) + " done")
