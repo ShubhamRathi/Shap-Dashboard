@@ -102,6 +102,8 @@ def generateCounterfactual(dataset, model, noofneighbours, datapoint, shapvals, 
 		df = df.drop_duplicates() # New Datapoint
 		df = df.append([origdatapoint], ignore_index=True) # Original Datapoint
 		df = df.drop_duplicates(keep = False)
+		if len(df) > 0:
+			send_mail("Found CF point on #" +str(len(df)))
 	else:
 		df = pd.DataFrame()
 	return df
