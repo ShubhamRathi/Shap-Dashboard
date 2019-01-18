@@ -9,7 +9,6 @@ import shap
 import matplotlib.pyplot as plt
 from sklearn.neighbors import NearestNeighbors
 from random import randint
-from pandas.testing import assert_frame_equal
 
 app = Flask(__name__)
 
@@ -83,7 +82,8 @@ def returnColNames(dataset):
 
 def returnRandomDatapoint(dataset):
 	X_train,X_test,Y_train,Y_test = returnDataset(dataset)
-	return randint(0, len(X_test)-1)
+	# return randint(0, len(X_test)-1)
+	return 29
 
 def mergeTerms(terms):
 	ans = ""

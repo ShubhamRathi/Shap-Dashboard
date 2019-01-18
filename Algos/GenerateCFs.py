@@ -96,22 +96,14 @@ def generateCounterfactual(dataset, model, noofneighbours, datapoint, shapvals, 
 	        newDatapoint[key] = X_train.iloc[point][key]
 	    if int(algo.predict([newDatapoint])) == int(desiredcategory):
 	        result.append(newDatapoint)
-	print (" ................................................START.........................................................")
-	print ("Result has these many points: " + str(len(result)))
 	if len(result) > 0:
 		df = pd.DataFrame()
 		df = df.append(result, ignore_index=True) # Collected Counterfactual Points
 		df = df.drop_duplicates() # New Datapoint
-		print ("									Initial DFs length: " +str(len(df)))
-		# dp = pd.DataFrame() 
 		df = df.append([origdatapoint], ignore_index=True) # Original Datapoint
-		# df = pd.concat([dp, df])
-		print ("									DF middle length: " +str(len(df)))
 		df = df.drop_duplicates(keep = False)
-		print ("									Final DF:" +str(len(df)))
 	else:
 		df = pd.DataFrame()
-	print (" ..................................................END.........................................................")
 	return df
 
 def send_mail(subject):
@@ -146,8 +138,8 @@ def main():
 		segment = str(sys.argv[4])
 		for datapoint in range(int(start * len(X_test)), int(end * len(X_test))):
 			print ("Processing datapoint #" +str(datapoint))
-			# if datapoint in ranges:
-			# 	send_mail(str((datapoint/len(X_test))*100)+"% of CF Report for" + str(algo) + " done")
+			if datapoint in ranges:
+				send_mail(str((datapoint/len(X_test))*100)+"% of CF Report for" + str(algo) + " done")
 			category = makePrediction(ds, algo, datapoint)
 			shapvals = returnSHAP(ds, algo, datapoint)
 			columns = returnColNames(ds)
@@ -160,6 +152,6 @@ def main():
 				if len(df) > 0:
 					send_mail("["+str(algo)+"] Found " + str(len(len(df))) + "CF points for # " + str(datapoint))
 		report = pd.DataFrame(statistics, columns = cols)
-		report.to_csv("./Results/CF/"+algo+str(segment)+".csv")
+		report.to_csv("./Results/CF/"+str(dataset)+"/"+algo+str(segment)+".csv")
 
 main()
