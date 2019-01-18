@@ -129,7 +129,7 @@ def generateRanges(number):
 
 def main():
 	algos = [sys.argv[1]]
-	ds = "IRIS"
+	ds = "Mobile"
 	cols = ["Datapoint No.", "P", "Q", "Total Counterfactual Points"]
 	statistics = []
 	for algo in algos:
@@ -154,6 +154,6 @@ def main():
 				if len(df) > 0:
 					send_mail("["+str(algo)+"] Found " + str(len(len(df))) + "CF points for # " + str(datapoint))
 		report = pd.DataFrame(statistics, columns = cols)
-		report.to_csv("./Results/CF/"+str(dataset)+"/"+algo+str(segment)+".csv")
+		report.to_csv("./Results/CF/"+str(ds)+"/"+algo+str(segment)+".csv")
 
 main()
