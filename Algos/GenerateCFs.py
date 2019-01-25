@@ -23,8 +23,6 @@ def returnModel(model):
 def returnDataset(dataset):
 	if dataset == "IRIS":
 		X_train,X_test,Y_train,Y_test = train_test_split(*shap.datasets.iris(), test_size=0.2, random_state=0)
-	elif dataset == "Boston":
-		X_train,X_test,Y_train,Y_test = train_test_split(*shap.datasets.boston(), test_size=0.2, random_state=0)
 	elif dataset == "Mobile":
 		df = pd.read_csv('./Data/train.csv')
 		test = pd.read_csv('./Data/test.csv')
@@ -90,23 +88,20 @@ def generateCounterfactual(dataset, model, noofneighbours, datapoint, shapvals, 
 	out = neigh.kneighbors([X_test.iloc[datapoint]])
 	newDatapoint = X_test.iloc[datapoint]
 	origdatapoint = newDatapoint
+	df_original = X_test.iloc[[datapoint]]
+	print("Original Datapoint outside is: \n" + str(origdatapoint))
 	result = []
 	for point in out[1][0]:
-	    for key, value in MutateValues.items():
-	        newDatapoint[key] = X_train.iloc[point][key]
-	    if int(algo.predict([newDatapoint])) == int(desiredcategory):
-	        result.append(newDatapoint)
-	if len(result) > 0:
-		df = pd.DataFrame()
-		df = df.append(result, ignore_index=True) # Collected Counterfactual Points
-		df = df.drop_duplicates() # New Datapoint
-		df = df.append([origdatapoint], ignore_index=True) # Original Datapoint
-		df = df.drop_duplicates(keep = False)
-		if len(df) > 0:
-			send_mail("Found CF point on #" +str(len(df)))
-	else:
-		df = pd.DataFrame()
-	return df
+		newDatapoint = origdatapoint
+		for key, value in MutateValues.items():
+			newDatapoint[key] = X_train.iloc[point][key]
+		if int(algo.predict([newDatapoint])) == int(desiredcategory):
+			if newDatapoint.tolist() not in result:
+				result.append(newDatapoint.tolist())
+	df = pd.DataFrame(result, columns=df_original.columns)
+	df = df.drop_duplicates() # New Datapoint
+	print(df)
+	return result
 
 def send_mail(subject):
 	import smtplib
@@ -129,7 +124,7 @@ def generateRanges(number):
 
 def main():
 	algos = [sys.argv[1]]
-	ds = "Mobile"
+	ds = "IRIS"
 	cols = ["Datapoint No.", "P", "Q", "Total Counterfactual Points"]
 	statistics = []
 	for algo in algos:
@@ -138,21 +133,23 @@ def main():
 		start = float(sys.argv[2]) 
 		end = float(sys.argv[3])
 		segment = str(sys.argv[4])
-		for datapoint in range(int(start * len(X_test)), int(end * len(X_test))):
+		# for datapoint in range(int(start * len(X_test)), int(end * len(X_test))):
+		for datapoint in [15]:
 			print ("Processing datapoint #" +str(datapoint))
-			if datapoint in ranges:
-				send_mail(str((datapoint/len(X_test))*100)+"% of CF Report for" + str(algo) + " done")
+			# if datapoint in ranges:
+			# 	send_mail(str((datapoint/len(X_test))*100)+"% of CF Report for" + str(algo) + " done")
 			category = makePrediction(ds, algo, datapoint)
 			shapvals = returnSHAP(ds, algo, datapoint)
 			columns = returnColNames(ds)
 			classes = getClasses(ds)
 			classes.remove(category)
 			for desiredcategory in classes:
-				df = generateCounterfactual(ds, algo, 100, datapoint, shapvals, desiredcategory)
+				print("Why "+str(category)+" not " +str(desiredcategory))
+				df = generateCounterfactual(ds, algo, 50, datapoint, shapvals, desiredcategory)
 				stat = [datapoint, category, desiredcategory, len(df)]
 				statistics.append(stat)
-				if len(df) > 0:
-					send_mail("["+str(algo)+"] Found " + str(len(len(df))) + "CF points for # " + str(datapoint))
+				# if len(df) > 0:
+				# 	send_mail("["+str(algo)+"] Found " + str(len(df)) + "CF points for # " + str(datapoint))
 		report = pd.DataFrame(statistics, columns = cols)
 		report.to_csv("./Results/CF/"+str(ds)+"/"+algo+str(segment)+".csv")
 
