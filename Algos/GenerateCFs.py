@@ -89,7 +89,7 @@ def generateCounterfactual(dataset, model, noofneighbours, datapoint, shapvals, 
 	newDatapoint = X_test.iloc[datapoint]
 	origdatapoint = newDatapoint
 	df_original = X_test.iloc[[datapoint]]
-	print("Original Datapoint outside is: \n" + str(origdatapoint))
+	# print("Original Datapoint outside is: \n" + str(origdatapoint))
 	result = []
 	for point in out[1][0]:
 		newDatapoint = origdatapoint
@@ -100,8 +100,8 @@ def generateCounterfactual(dataset, model, noofneighbours, datapoint, shapvals, 
 				result.append(newDatapoint.tolist())
 	df = pd.DataFrame(result, columns=df_original.columns)
 	df = df.drop_duplicates() # New Datapoint
-	print(df)
-	return result
+	df = df[~df.isin(df_original)]
+	return df, MutateValues
 
 def send_mail(subject):
 	import smtplib
@@ -125,7 +125,7 @@ def generateRanges(number):
 def main():
 	algos = [sys.argv[1]]
 	ds = "IRIS"
-	cols = ["Datapoint No.", "P", "Q", "Total Counterfactual Points"]
+	cols = ["Datapoint No.", "P", "Q", "Total Counterfactual Points", "SHAP fields", "Common Points"]
 	statistics = []
 	for algo in algos:
 		X_train,X_test,Y_train,Y_test = returnDataset(ds)
@@ -133,8 +133,9 @@ def main():
 		start = float(sys.argv[2]) 
 		end = float(sys.argv[3])
 		segment = str(sys.argv[4])
-		# for datapoint in range(int(start * len(X_test)), int(end * len(X_test))):
-		for datapoint in [15]:
+		lim = range(0, len(X_test))
+		# lim = [7]
+		for datapoint in lim:
 			print ("Processing datapoint #" +str(datapoint))
 			# if datapoint in ranges:
 			# 	send_mail(str((datapoint/len(X_test))*100)+"% of CF Report for" + str(algo) + " done")
@@ -144,13 +145,15 @@ def main():
 			classes = getClasses(ds)
 			classes.remove(category)
 			for desiredcategory in classes:
-				print("Why "+str(category)+" not " +str(desiredcategory))
-				df = generateCounterfactual(ds, algo, 50, datapoint, shapvals, desiredcategory)
-				stat = [datapoint, category, desiredcategory, len(df)]
+				# print("Why "+str(category)+" not " +str(desiredcategory))
+				df, shapdict = generateCounterfactual(ds, algo, 50, datapoint, shapvals, desiredcategory)
+				common = pd.merge(df, X_train, how='inner', on=list(columns))
+				common = common.drop_duplicates()
+				stat = [datapoint, category, desiredcategory, len(df), len(shapdict), len(common)]
 				statistics.append(stat)
 				# if len(df) > 0:
 				# 	send_mail("["+str(algo)+"] Found " + str(len(df)) + "CF points for # " + str(datapoint))
 		report = pd.DataFrame(statistics, columns = cols)
-		report.to_csv("./Results/CF/"+str(ds)+"/"+algo+str(segment)+".csv")
+		report.to_csv("./Results/CF/"+str(ds)+"/"+algo+".csv")
 
 main()
