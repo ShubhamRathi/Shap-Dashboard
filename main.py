@@ -82,8 +82,8 @@ def returnColNames(dataset):
 
 def returnRandomDatapoint(dataset):
 	X_train,X_test,Y_train,Y_test = returnDataset(dataset)
-	# return randint(0, len(X_test)-1)
-	return 29
+	return randint(0, len(X_test)-1)
+	# return 29
 
 def mergeTerms(terms):
 	ans = ""
@@ -140,25 +140,20 @@ def generateCounterfactual(dataset, model, noofneighbours, datapoint, shapvals, 
 	neigh.fit(X_train)
 	out = neigh.kneighbors([X_test.iloc[datapoint]])
 	newDatapoint = X_test.iloc[datapoint]
-	origdatapoint = X_test.iloc[datapoint]
+	origdatapoint = newDatapoint
+	df_original = X_test.iloc[[datapoint]]
 	result = []
 	for point in out[1][0]:
-	    for key, value in MutateValues.items():
-	        newDatapoint[key] = X_train.iloc[point][key]
-	    if int(algo.predict([newDatapoint])) == int(desiredcategory):
-	        result.append(newDatapoint)
-	if len(result) > 0:
-		df = pd.DataFrame()
-		df = df.append(result, ignore_index=True) # Collected Counterfactual Points
-		df = df.drop_duplicates() # New Datapoints
-
-		dp = pd.DataFrame() 
-		dp = df.append([origdatapoint], ignore_index=True) # Original Datapoint
-		df = pd.concat([dp, df])
-		df = df.drop_duplicates(keep = False)
-	else:
-		df = pd.DataFrame()
-	return df
+		newDatapoint = origdatapoint
+		for key, value in MutateValues.items():
+			newDatapoint[key] = X_train.iloc[point][key]
+		if int(algo.predict([newDatapoint])) == int(desiredcategory):
+			if newDatapoint.tolist() not in result:
+				result.append(newDatapoint.tolist())
+	df = pd.DataFrame(result, columns=df_original.columns)
+	df = df.drop_duplicates() # New Datapoint
+	df = df[~df.isin(df_original)]
+	return df, df_original
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -202,14 +197,16 @@ def index():
 		plot_bar_x(shapvals[int(category)], colnames)
 
 		# Add Counterfactual points
-		df = generateCounterfactual(dataset, model, 50, datapoint, shapvals, int(desiredcategory))
+		df, original = generateCounterfactual(dataset, model, 50, datapoint, shapvals, int(desiredcategory))
+		original.reset_index()
+		original = original.to_html()
 		if len(df) == 0:
 			df = "Nothing to show"
 		else:
 			df = df.to_html()
 		return render_template('index.html', dataset=dataset, model=model, location = "#step-4", 
 			datapoint = "Random("+str(datapoint)+")", category = category, allclasses = list(freq.keys()), 
-			contrastive = contrastive, yP=yP, ynotQ=ynotQ, desiredcategory=desiredcategory, df=df)
+			contrastive = contrastive, yP=yP, ynotQ=ynotQ, desiredcategory=desiredcategory, df=df, original=original)
 	return render_template('index.html', location = "#")
 
 if __name__ == '__main__':

@@ -153,6 +153,9 @@
                     <div class="container">
                         <h2>Explain Prediction: {{ contrastive }}</h2>
                         <p> Each tab shows varying kind of predictions. Depending on the context and requirement, appropriate level of predictions may be made available to the user.</p>
+                        <h3>Original Datapoint</h3>
+                        <p>See table below</p>
+                         {{original | safe}}
                         <ul class="nav nav-pills">
                             <li class="active"><a data-toggle="pill" href="#home">Natural Language</a></li>
                             <li><a data-toggle="pill" href="#menu1">Histogram</a></li>
