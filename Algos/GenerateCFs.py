@@ -124,7 +124,7 @@ def generateRanges(number):
 
 def main():
 	algos = [sys.argv[1]]
-	ds = "IRIS"
+	ds = "Mobile"
 	cols = ["Datapoint No.", "P", "Q", "Total Counterfactual Points", "SHAP fields", "Common Points"]
 	statistics = []
 	for algo in algos:
