@@ -133,7 +133,7 @@ def main():
 		start = float(sys.argv[2]) 
 		end = float(sys.argv[3])
 		segment = str(sys.argv[4])
-		lim = range(0, len(X_test))
+		lim = range(int(len(X_test)*start), int(len(X_test)*end))
 		# lim = [7]
 		for datapoint in lim:
 			print ("Processing datapoint #" +str(datapoint))
@@ -154,6 +154,6 @@ def main():
 				# if len(df) > 0:
 				# 	send_mail("["+str(algo)+"] Found " + str(len(df)) + "CF points for # " + str(datapoint))
 		report = pd.DataFrame(statistics, columns = cols)
-		report.to_csv("./Results/CF/"+str(ds)+"/"+algo+".csv")
+		report.to_csv("./Results/CF/"+str(ds)+"/"+str(algo)+str(segment)+".csv")
 
 main()
