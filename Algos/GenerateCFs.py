@@ -153,11 +153,11 @@ def main():
 		start = float(sys.argv[2]) 
 		end = float(sys.argv[3])
 		segment = str(sys.argv[4])
-		# lim = range(int(len(X_test)*start), int(len(X_test)*end))
-		print ("There are total " + str(len(X_test)) + " points.")
-		lim = [7]
+		lim = range(int(len(X_test)*start), int(len(X_test)*end))
+		# print ("There are total " + str(len(X_test)) + " points.")
+		# lim = [7]
 		for datapoint in lim:
-			start_time = time.time()
+			# start_time = time.time()
 			print ("Processing datapoint #" +str(datapoint))
 			# if datapoint in ranges:
 			# 	send_mail(str((datapoint/len(X_test))*100)+"% of CF Report for" + str(algo) + " done")
@@ -173,7 +173,7 @@ def main():
 				common = common.drop_duplicates()
 				stat = [datapoint, category, desiredcategory, len(df), len(shapdict), len(common)]
 				statistics.append(stat)
-			end_time = time.time()
+			# end_time = time.time()
 		report = pd.DataFrame(statistics, columns = cols)
 		report.to_csv("./Results/CF/"+str(ds)+"/"+str(algo)+str(segment)+".csv")
 
