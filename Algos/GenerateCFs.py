@@ -5,6 +5,7 @@ import pandas as pd
 import shap
 import time
 import csv
+from sklearn import datasets
 from sklearn.neighbors import NearestNeighbors
 
 def returnModel(model):
@@ -51,6 +52,23 @@ def returnDataset(dataset):
 		Y_test = pd.DataFrame(Y_test)
 		Y_test.columns = Y_test.columns + 1
 		Y_test.index = Y_test.index + 1
+	else:
+		dataset_url = 'http://mlr.cs.umass.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv'
+		data = pd.read_csv(dataset_url, sep=';')
+		y = data.quality
+		X = data.drop('quality', axis=1)
+		X_train, X_test, Y_train, Y_test = train_test_split(X, y,test_size=0.2)
+		X_train.columns = data.columns[:-1]
+		X_test.columns = data.columns[:-1]
+		Y_test.columns = data.columns[-1]
+		Y_train.columns = data.columns[:-1]
+		unique, counts = np.unique(Y_test, return_counts=True)
+		unique = list(unique)
+		newValues = list(range(len(unique)))
+		val = dict(zip(unique, newValues))
+		for key, value in val.items():
+			Y_train.replace(to_replace = key, value = value, inplace=True)
+			Y_test.replace(to_replace = key, value = value, inplace=True)
 	return X_train,X_test,Y_train,Y_test
 
 def makePrediction(dataset, model, datapoint):
@@ -81,6 +99,8 @@ def generateCounterfactual(dataset, model, noofneighbours, datapoint, shapvals, 
 	X_train,X_test,Y_train,Y_test = returnDataset(dataset)
 	algo = returnModel(model)
 	algo.fit(X_train, Y_train)
+	coln = returnColNames(dataset)
+	sv = shapvals[int(desiredcategory)]
 	shapdict = dict(zip(returnColNames(dataset), shapvals[int(desiredcategory)]))
 	MutateValues = {k: v for k, v in shapdict.items() if v < 0}
 	neigh = NearestNeighbors(n_neighbors=noofneighbours)
@@ -124,7 +144,7 @@ def generateRanges(number):
 
 def main():
 	algos = [sys.argv[1]]
-	ds = "Mobile"
+	ds = "Wine"
 	cols = ["Datapoint No.", "P", "Q", "Total Counterfactual Points", "SHAP fields", "Common Points"]
 	statistics = []
 	for algo in algos:
@@ -133,9 +153,11 @@ def main():
 		start = float(sys.argv[2]) 
 		end = float(sys.argv[3])
 		segment = str(sys.argv[4])
-		lim = range(int(len(X_test)*start), int(len(X_test)*end))
-		# lim = [7]
+		# lim = range(int(len(X_test)*start), int(len(X_test)*end))
+		print ("There are total " + str(len(X_test)) + " points.")
+		lim = [7]
 		for datapoint in lim:
+			start_time = time.time()
 			print ("Processing datapoint #" +str(datapoint))
 			# if datapoint in ranges:
 			# 	send_mail(str((datapoint/len(X_test))*100)+"% of CF Report for" + str(algo) + " done")
@@ -144,15 +166,14 @@ def main():
 			columns = returnColNames(ds)
 			classes = getClasses(ds)
 			classes.remove(category)
+			print (classes)
 			for desiredcategory in classes:
-				# print("Why "+str(category)+" not " +str(desiredcategory))
 				df, shapdict = generateCounterfactual(ds, algo, 50, datapoint, shapvals, desiredcategory)
 				common = pd.merge(df, X_train, how='inner', on=list(columns))
 				common = common.drop_duplicates()
 				stat = [datapoint, category, desiredcategory, len(df), len(shapdict), len(common)]
 				statistics.append(stat)
-				# if len(df) > 0:
-				# 	send_mail("["+str(algo)+"] Found " + str(len(df)) + "CF points for # " + str(datapoint))
+			end_time = time.time()
 		report = pd.DataFrame(statistics, columns = cols)
 		report.to_csv("./Results/CF/"+str(ds)+"/"+str(algo)+str(segment)+".csv")
 
