@@ -64,11 +64,12 @@ def returnDataset(dataset):
 		Y_train.columns = data.columns[:-1]
 		unique, counts = np.unique(Y_test, return_counts=True)
 		unique = list(unique)
-		newValues = list(range(len(unique)))
-		val = dict(zip(unique, newValues))
-		for key, value in val.items():
-			Y_train.replace(to_replace = key, value = value, inplace=True)
-			Y_test.replace(to_replace = key, value = value, inplace=True)
+		for idx, val in enumerate(unique):
+			Y_train.replace(to_replace = val, value = idx, inplace=True)
+			Y_test.replace(to_replace = val, value = idx, inplace=True)
+			# print ("Replace " + str(val) + " with " + str(idx))
+		unique, counts = np.unique(Y_test, return_counts=True)
+		print (unique)
 	return X_train,X_test,Y_train,Y_test
 
 def makePrediction(dataset, model, datapoint):
