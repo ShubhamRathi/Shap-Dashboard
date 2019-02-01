@@ -69,7 +69,7 @@ def returnDataset(dataset):
 			Y_test.replace(to_replace = val, value = idx, inplace=True)
 			# print ("Replace " + str(val) + " with " + str(idx))
 		unique, counts = np.unique(Y_test, return_counts=True)
-		print (unique)
+		# print (unique)
 	return X_train,X_test,Y_train,Y_test
 
 def makePrediction(dataset, model, datapoint):
@@ -101,6 +101,8 @@ def generateCounterfactual(dataset, model, noofneighbours, datapoint, shapvals, 
 	algo = returnModel(model)
 	algo.fit(X_train, Y_train)
 	coln = returnColNames(dataset)
+	print (len(shapvals))
+	print ("desiredcategory: " + str(desiredcategory))
 	sv = shapvals[int(desiredcategory)]
 	shapdict = dict(zip(returnColNames(dataset), shapvals[int(desiredcategory)]))
 	MutateValues = {k: v for k, v in shapdict.items() if v < 0}
@@ -156,7 +158,7 @@ def main():
 		segment = str(sys.argv[4])
 		lim = range(int(len(X_test)*start), int(len(X_test)*end))
 		# print ("There are total " + str(len(X_test)) + " points.")
-		# lim = [7]
+		# lim = [1]
 		for datapoint in lim:
 			# start_time = time.time()
 			print ("Processing datapoint #" +str(datapoint))
@@ -166,6 +168,7 @@ def main():
 			shapvals = returnSHAP(ds, algo, datapoint)
 			columns = returnColNames(ds)
 			classes = getClasses(ds)
+			print (classes)
 			classes.remove(category)
 			print (classes)
 			for desiredcategory in classes:
