@@ -7,6 +7,7 @@ import time
 import csv
 from sklearn import datasets
 from sklearn.neighbors import NearestNeighbors
+from pprint import pprint
 
 def returnModel(model):
 	if model == "KNN":
@@ -101,7 +102,6 @@ def generateCounterfactual(dataset, model, noofneighbours, datapoint, shapvals, 
 	algo = returnModel(model)
 	algo.fit(X_train, Y_train)
 	coln = returnColNames(dataset)
-	print (len(shapvals))
 	print ("desiredcategory: " + str(desiredcategory))
 	sv = shapvals[int(desiredcategory)]
 	shapdict = dict(zip(returnColNames(dataset), shapvals[int(desiredcategory)]))
@@ -156,10 +156,10 @@ def main():
 		start = float(sys.argv[2]) 
 		end = float(sys.argv[3])
 		segment = str(sys.argv[4])
-		# lim = range(int(len(X_test)*start), int(len(X_test)*end))
+		lim = range(int(len(X_test)*start), int(len(X_test)*end))
 		# print ("There are total " + str(len(X_test)) + " points.")
-		lim = [9]
-		for datapoint in lim:
+		# lim = [9]
+		for datapoint in lim[9:]:
 			# start_time = time.time()
 			print ("Processing datapoint #" +str(datapoint))
 			# if datapoint in ranges:
@@ -168,14 +168,14 @@ def main():
 			shapvals = returnSHAP(ds, algo, datapoint)
 			columns = returnColNames(ds)
 			classes = getClasses(ds)
-			print (classes)
+			# print (classes)
 			classes.remove(category)
-			print (classes)
+			pprint (classes)
 			for desiredcategory in classes:
 				df, shapdict = generateCounterfactual(ds, algo, 50, datapoint, shapvals, desiredcategory)
-				if len(shapdict) != 6:
-					print ("Continue loop as SHAPdict is not of 6")
-					continue
+				if desiredcategory >= len(shapdict):
+					print ("desiredcategory: " + str(desiredcategory))
+					pprint(shapdict)
 				common = pd.merge(df, X_train, how='inner', on=list(columns))
 				common = common.drop_duplicates()
 				stat = [datapoint, category, desiredcategory, len(df), len(shapdict), len(common)]
