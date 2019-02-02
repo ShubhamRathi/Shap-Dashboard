@@ -156,9 +156,9 @@ def main():
 		start = float(sys.argv[2]) 
 		end = float(sys.argv[3])
 		segment = str(sys.argv[4])
-		lim = range(int(len(X_test)*start), int(len(X_test)*end))
+		# lim = range(int(len(X_test)*start), int(len(X_test)*end))
 		# print ("There are total " + str(len(X_test)) + " points.")
-		# lim = [1]
+		lim = [9]
 		for datapoint in lim:
 			# start_time = time.time()
 			print ("Processing datapoint #" +str(datapoint))
@@ -173,6 +173,9 @@ def main():
 			print (classes)
 			for desiredcategory in classes:
 				df, shapdict = generateCounterfactual(ds, algo, 50, datapoint, shapvals, desiredcategory)
+				if len(shapdict) != 6:
+					print ("Continue loop as SHAPdict is not of 6")
+					continue
 				common = pd.merge(df, X_train, how='inner', on=list(columns))
 				common = common.drop_duplicates()
 				stat = [datapoint, category, desiredcategory, len(df), len(shapdict), len(common)]
