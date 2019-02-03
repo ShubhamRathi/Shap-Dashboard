@@ -54,24 +54,11 @@ def returnDataset(dataset):
 		Y_test.columns = Y_test.columns + 1
 		Y_test.index = Y_test.index + 1
 	else:
-		dataset_url = 'http://mlr.cs.umass.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv'
-		data = pd.read_csv(dataset_url, sep=';')
-		y = data.quality
-		X = data.drop('quality', axis=1)
-		X_train, X_test, Y_train, Y_test = train_test_split(X, y,test_size=0.2)
-		X_train.columns = data.columns[:-1]
-		X_test.columns = data.columns[:-1]
-		Y_test.columns = data.columns[-1]
-		Y_train.columns = data.columns[:-1]
-		unique, counts = np.unique(Y_test, return_counts=True)
-		unique = list(unique)
-		for idx, val in enumerate(unique):
-			Y_train.replace(to_replace = val, value = idx, inplace=True)
-			Y_test.replace(to_replace = val, value = idx, inplace=True)
-			# print ("Replace " + str(val) + " with " + str(idx))
-		unique, counts = np.unique(Y_test, return_counts=True)
-		# print (unique)
-	return X_train,X_test,Y_train,Y_test
+		df = pd.read_csv('./Data/winequality-red.csv')
+		X = df.drop('quality', axis = 1)
+		y = df['quality']
+		X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size = 0.2, random_state = 42)
+	return X_train, X_test, Y_train, Y_test
 
 def makePrediction(dataset, model, datapoint):
 	X_train,X_test,Y_train,Y_test = returnDataset(dataset)
