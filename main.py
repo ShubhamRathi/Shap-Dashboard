@@ -3,9 +3,7 @@ import sklearn, os
 import numpy as np
 import pandas as pd
 import shap
-from sklearn.datasets import load_boston
 from sklearn.model_selection import train_test_split
-import shap
 import matplotlib.pyplot as plt
 from sklearn.neighbors import NearestNeighbors
 from random import randint
@@ -29,8 +27,6 @@ def returnModel(model):
 def returnDataset(dataset):
 	if dataset == 'IRIS':
 		X_train,X_test,Y_train,Y_test = train_test_split(*shap.datasets.iris(), test_size=0.2, random_state=0)
-	elif dataset == 'Boston':
-		X_train,X_test,Y_train,Y_test = train_test_split(*shap.datasets.boston(), test_size=0.2, random_state=0)
 	elif dataset == 'Mobile':
 		df = pd.read_csv('../Data/train.csv')
 		test = pd.read_csv('../Data/test.csv')
@@ -62,18 +58,26 @@ def returnDataset(dataset):
 
 	return X_train,X_test,Y_train,Y_test
 
-def makePrediction(dataset, model, datapoint):
+def makePrediction(dataset, model, datapoint, random):
 	X_train,X_test,Y_train,Y_test = returnDataset(dataset)
 	algo = returnModel(model)
 	algo.fit(X_train, Y_train)
-	return int(algo.predict([X_test.iloc[datapoint,:]]))
+	if random == True:
+		return int(algo.predict([X_test.iloc[datapoint,:]]))
+	return int(algo.predict([pd.Series(datapoint)]))
 
-def returnSHAP(dataset, model, datapoint):
+def returnSHAP(dataset, model, datapoint, random):
 	X_train,X_test,Y_train,Y_test = returnDataset(dataset)
 	algo = returnModel(model)
 	algo.fit(X_train, Y_train)
 	explainer = shap.KernelExplainer(algo.predict_proba, X_train)
-	shap_values = explainer.shap_values(X_test.iloc[datapoint,:])
+	# print("datapoint----",str(datapoint),str(type(datapoint)))
+	if random == True:
+		print("Random Datapoint is: ")
+		print (X_test.iloc[datapoint,:])
+		shap_values = explainer.shap_values(X_test.iloc[datapoint,:])
+	else:
+		shap_values = explainer.shap_values(pd.Series(datapoint, index = X_test.columns))
 	return shap_values
 
 def returnColNames(dataset):
@@ -101,6 +105,7 @@ def returnFrequencies(dataset):
 	return dict(zip(unique, counts))
 
 def whyPnotQ(shap_values, category, colnames, anti):
+	# print ("shap values----\n",str(shap_values))
 	shapdict = dict(zip(colnames, shap_values[int(category)]))
 	if anti:
 		Pos = {k: v for k, v in shapdict.items() if v < 0}
@@ -130,7 +135,7 @@ def plot_bar_x(shapvals, label):
     plt.tight_layout()
     plt.savefig("./static/img/bar.png")
 
-def generateCounterfactual(dataset, model, noofneighbours, datapoint, shapvals, desiredcategory):
+def generateCounterfactual(dataset, model, noofneighbours, datapoint, shapvals, desiredcategory, random):
 	X_train,X_test,Y_train,Y_test = returnDataset(dataset)
 	algo = returnModel(model)
 	algo.fit(X_train, Y_train)
@@ -138,10 +143,18 @@ def generateCounterfactual(dataset, model, noofneighbours, datapoint, shapvals, 
 	MutateValues = {k: v for k, v in shapdict.items() if v < 0}
 	neigh = NearestNeighbors(n_neighbors=noofneighbours)
 	neigh.fit(X_train)
-	out = neigh.kneighbors([X_test.iloc[datapoint]])
-	newDatapoint = X_test.iloc[datapoint]
-	origdatapoint = newDatapoint
-	df_original = X_test.iloc[[datapoint]]
+	if random == True:
+		out = neigh.kneighbors([X_test.iloc[datapoint]])
+		newDatapoint = X_test.iloc[datapoint]
+		origdatapoint = newDatapoint
+		df_original = X_test.iloc[[datapoint]]
+	else:
+		# print ("Datapoint: "+str(datapoint))
+		out = neigh.kneighbors([pd.Series(datapoint, index = X_test.columns)])
+		# print ("Neighbours: "+str(out))
+		newDatapoint = pd.Series(datapoint, index = X_test.columns)
+		origdatapoint = newDatapoint
+		df_original = pd.DataFrame(newDatapoint)
 	result = []
 	for point in out[1][0]:
 		newDatapoint = origdatapoint
@@ -150,7 +163,7 @@ def generateCounterfactual(dataset, model, noofneighbours, datapoint, shapvals, 
 		if int(algo.predict([newDatapoint])) == int(desiredcategory):
 			if newDatapoint.tolist() not in result:
 				result.append(newDatapoint.tolist())
-	df = pd.DataFrame(result, columns=df_original.columns)
+	df = pd.DataFrame(result, columns=X_test.columns)
 	df = df.drop_duplicates() # New Datapoint
 	df = df[~df.isin(df_original)]
 	return df, df_original
@@ -169,22 +182,35 @@ def index():
 		global model
 		model = request.form['model']
 		print ("Dataset is " + str(dataset) + " and Model is " +str(model))
-		return render_template('index.html', dataset=dataset, model=model, location = "#step-2")
+		colstring = ', '.join(returnColNames(dataset))
+		return render_template('index.html', dataset=dataset, model=model, location = "#step-2", col=colstring)
 	if request.method == 'POST' and 'point' in request.form:
 		global datapoint
-		# datapoint = request.form['point']
 		global category
 		global shapvals
 		global freq
 		global colnames
-		datapoint = returnRandomDatapoint(dataset)
-		category = makePrediction(dataset, model, datapoint)
+		global israndom
+		global pt
+		if request.form['point'] == "Random":
+			print ("Got Random Value!")
+			datapoint = returnRandomDatapoint(dataset)
+			category = makePrediction(dataset, model, datapoint, True)
+			shapvals = returnSHAP(dataset, model, datapoint, True)
+			pt = "Random("+str(datapoint)+")"
+			israndom = True
+		else:
+			print ("Got SpecificData")
+			texta = request.form['SpecificData'].split(",")
+			datapoint = [float(i) for i in texta]
+			category = makePrediction(dataset, model, datapoint, False)
+			shapvals = returnSHAP(dataset, model, datapoint, False)
+			pt = str(datapoint)
+			israndom = False
 		freq = returnFrequencies(dataset)
 		colnames = returnColNames(dataset)
-		shapvals = returnSHAP(dataset, model, datapoint)
-
 		return render_template('index.html', dataset=dataset, model=model, location = "#step-3", 
-			datapoint = "Random("+str(datapoint)+")", category = category, allclasses = list(freq.keys()) )
+			datapoint = pt, category = category, allclasses = list(freq.keys()) )
 	if request.method == 'POST' and 'desiredcategory' in request.form:
 		# Explanations
 		desiredcategory = request.form['desiredcategory']
@@ -197,7 +223,7 @@ def index():
 		plot_bar_x(shapvals[int(category)], colnames)
 
 		# Add Counterfactual points
-		df, original = generateCounterfactual(dataset, model, 50, datapoint, shapvals, int(desiredcategory))
+		df, original = generateCounterfactual(dataset, model, 50, datapoint, shapvals, int(desiredcategory), israndom)
 		original.reset_index()
 		original = original.to_html()
 		if len(df) == 0:
@@ -205,7 +231,7 @@ def index():
 		else:
 			df = df.to_html()
 		return render_template('index.html', dataset=dataset, model=model, location = "#step-4", 
-			datapoint = "Random("+str(datapoint)+")", category = category, allclasses = list(freq.keys()), 
+			datapoint = pt, category = category, allclasses = list(freq.keys()), 
 			contrastive = contrastive, yP=yP, ynotQ=ynotQ, desiredcategory=desiredcategory, df=df, original=original)
 	return render_template('index.html', location = "#")
 
