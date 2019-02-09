@@ -69,8 +69,6 @@ toolz==0.9.0
 tornado==5.1.1
 tqdm==4.28.1
 traitlets==4.3.2
-ufw==0.35
-unattended-upgrades==0.1
 urllib3==1.24.1
 virtualenv==15.0.1
 wcwidth==0.1.7
