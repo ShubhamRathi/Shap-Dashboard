@@ -167,6 +167,20 @@ def generateCounterfactual(dataset, model, noofneighbours, datapoint, shapvals, 
 	df = df[~df.isin(df_original)]
 	return df, df_original
 
+def returnNearestNeighbours(dataset, model, datapoint, desiredcategory):
+	X_train,X_test,Y_train,Y_test = returnDataset(dataset)
+	algo = returnModel(model)
+	algo.fit(X_train, Y_train)
+	neigh = NearestNeighbors(n_neighbors=50)
+	neigh.fit(X_train)
+	out = neigh.kneighbors([pd.Series(datapoint, index = X_test.columns)])
+	result = []
+	for point in out[1][0]:
+		if int(algo.predict([X_train.iloc[point]])) == int(desiredcategory):
+			result.append(X_train.iloc[point])
+	df = pd.DataFrame(result, columns=X_test.columns)
+	return df
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
 	if request.method == 'POST' and 'dataset' in request.form:
@@ -191,6 +205,7 @@ def index():
 		global colnames
 		global israndom
 		global pt
+		global statement
 		if request.form['point'] == "Random":
 			print ("Got Random Value!")
 			datapoint = returnRandomDatapoint(dataset)
@@ -226,12 +241,15 @@ def index():
 		original.reset_index()
 		original = original.to_html()
 		if len(df) == 0:
-			df = "Nothing to show"
+			statement = "No mutated counterfactuals found, so displaying closest neighbours in class " + str(desiredcategory)
+			df = returnNearestNeighbours(dataset, model, datapoint, desiredcategory)
+			df = df.to_html()
 		else:
+			statement = "See table below"
 			df = df.to_html()
 		return render_template('index.html', dataset=dataset, model=model, location = "#step-4", 
 			datapoint = pt, category = category, allclasses = list(freq.keys()), 
-			contrastive = contrastive, yP=yP, ynotQ=ynotQ, desiredcategory=desiredcategory, df=df, original=original)
+			contrastive = contrastive, yP=yP, ynotQ=ynotQ, desiredcategory=desiredcategory, df=df, original=original, statement = statement)
 	return render_template('index.html', location = "#")
 
 if __name__ == '__main__':
