@@ -10,7 +10,6 @@ from random import randint
 
 app = Flask(__name__)
 
-
 def returnModel(model):
 	if model == "KNN":
 		m = sklearn.neighbors.KNeighborsClassifier()
@@ -171,10 +170,10 @@ def generateCounterfactual(dataset, model, noofneighbours, datapoint, shapvals, 
 @app.route('/', methods=['GET', 'POST'])
 def index():
 	if request.method == 'POST' and 'dataset' in request.form:
-		try:
-			os.remove("./static/img/bar.png") # Remove the previous image
-		except:
-			pass
+		# try:
+		# 	os.remove("./static/img/bar.png") # Remove the previous image
+		# except:
+		# 	pass
 		global dataset
 		dataset = request.form['dataset']
 		return render_template('index.html', dataset=dataset, location = "#step-1")
