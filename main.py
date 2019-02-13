@@ -84,9 +84,11 @@ def returnColNames(dataset):
 	return X_train.columns
 
 def returnRandomDatapoint(dataset):
-	X_train,X_test,Y_train,Y_test = returnDataset(dataset)
-	return randint(0, len(X_test)-1)
-	# return 29
+	if dataset == "IRIS":
+		points = [10,8,24,7,20,13,11,14,16,21,27,1,0,17,12,9,28,3,4,6,15,18,22,23,25,26,28,29,2,19,5]
+		return random.choice(points)
+	else:
+		return randint(0, 399)
 
 def mergeTerms(terms):
 	ans = ""
