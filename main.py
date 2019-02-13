@@ -27,8 +27,8 @@ def returnDataset(dataset):
 	if dataset == 'IRIS':
 		X_train,X_test,Y_train,Y_test = train_test_split(*shap.datasets.iris(), test_size=0.2, random_state=0)
 	elif dataset == 'Mobile':
-		df = pd.read_csv('../Data/train.csv')
-		test = pd.read_csv('../Data/test.csv')
+		df = pd.read_csv('./Data/train.csv')
+		test = pd.read_csv('./Data/test.csv')
 		df.isnull().sum().max()
 		y_t = np.array(df['price_range'])
 		X_t = df
