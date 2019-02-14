@@ -73,8 +73,8 @@ def returnSHAP(dataset, model, datapoint, random):
 	explainer = shap.KernelExplainer(algo.predict_proba, X_train)
 	# print("datapoint----",str(datapoint),str(type(datapoint)))
 	if random == True:
-		print("Random Datapoint is: ")
-		print (X_test.iloc[datapoint,:])
+		# print("Random Datapoint is: ")
+		# print (X_test.iloc[datapoint,:])
 		shap_values = explainer.shap_values(X_test.iloc[datapoint,:])
 	else:
 		shap_values = explainer.shap_values(pd.Series(datapoint, index = X_test.columns))
@@ -170,11 +170,11 @@ def generateCounterfactual(dataset, model, noofneighbours, datapoint, shapvals, 
 	df = df[~df.isin(df_original)]
 	return df, df_original
 
-def returnNearestNeighbours(dataset, model, datapoint, desiredcategory):
+def returnNearestNeighbours(dataset, model, datapoint, desiredcategory, nofneighbours):
 	X_train,X_test,Y_train,Y_test = returnDataset(dataset)
 	algo = returnModel(model)
 	algo.fit(X_train, Y_train)
-	neigh = NearestNeighbors(n_neighbors=50)
+	neigh = NearestNeighbors(n_neighbors=nofneighbours)
 	neigh.fit(X_train)
 	out = neigh.kneighbors([pd.Series(datapoint, index = X_test.columns)])
 	result = []
@@ -245,11 +245,20 @@ def index():
 		original = original.to_html()
 		if len(df) == 0:
 			statement = "No mutated counterfactuals found, so displaying closest neighbours in class " + str(desiredcategory)
-			df = returnNearestNeighbours(dataset, model, datapoint, desiredcategory)
-			df = df.to_html()
+			nofneighbours = 0
+			limit = 120 if datapoint == "IRIS" else 400
+			df = []
+			while len(df) == 0:
+				nofneighbours = nofneighbours + int(limit/10)
+				print ("nofneighbours: " + str(nofneighbours))
+				if nofneighbours > limit:
+					print ("If condition hit")
+					break
+				else:
+					df = returnNearestNeighbours(dataset, model, datapoint, desiredcategory, nofneighbours)
 		else:
 			statement = "See table below"
-			df = df.to_html()
+		df = df.to_html()
 		return render_template('index.html', dataset=dataset, model=model, location = "#step-4", 
 			datapoint = pt, category = category, allclasses = list(freq.keys()), 
 			contrastive = contrastive, yP=yP, ynotQ=ynotQ, desiredcategory=desiredcategory, df=df, original=original, statement = statement)
