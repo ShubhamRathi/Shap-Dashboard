@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import shap
 from sklearn.model_selection import train_test_split
+import matplotlib
 import matplotlib.pyplot as plt
 from sklearn.neighbors import NearestNeighbors
 from random import randint
@@ -28,8 +29,8 @@ def returnDataset(dataset):
 	if dataset == 'IRIS':
 		X_train,X_test,Y_train,Y_test = train_test_split(*shap.datasets.iris(), test_size=0.2, random_state=0)
 	elif dataset == 'Mobile':
-		df = pd.read_csv('./Data/train.csv')
-		test = pd.read_csv('./Data/test.csv')
+		df = pd.read_csv('/home/rathi/Shap-Dashboard/Data/train.csv')
+		test = pd.read_csv('/home/rathi/Shap-Dashboard/Data/test.csv')
 		df.isnull().sum().max()
 		y_t = np.array(df['price_range'])
 		X_t = df
@@ -135,7 +136,7 @@ def plot_bar_x(shapvals, label):
     plt.xticks(index, label, fontsize=8, rotation=90)
     plt.title('Feature Impact')
     plt.tight_layout()
-    plt.savefig("./static/img/bar.png")
+    plt.savefig("/home/madity/Production/flask-server/flask_server/static/img/bar.png")
 
 def generateCounterfactual(dataset, model, noofneighbours, datapoint, shapvals, desiredcategory, random):
 	X_train,X_test,Y_train,Y_test = returnDataset(dataset)
@@ -187,10 +188,10 @@ def returnNearestNeighbours(dataset, model, datapoint, desiredcategory, nofneigh
 @app.route('/', methods=['GET', 'POST'])
 def index():
 	if request.method == 'POST' and 'dataset' in request.form:
-		# try:
-		# 	os.remove("./static/img/bar.png") # Remove the previous image
-		# except:
-		# 	pass
+		try:
+			os.remove("/home/madity/Production/flask-server/flask_server/static/img/bar.png") # Remove the previous image
+		except:
+			pass
 		global dataset
 		dataset = request.form['dataset']
 		return render_template('index.html', dataset=dataset, location = "#step-1")
