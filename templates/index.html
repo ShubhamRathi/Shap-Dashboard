@@ -166,7 +166,6 @@
                          {{original | safe}}
                         <ul class="nav nav-pills">
                             <li class="active"><a data-toggle="pill" href="#home">Natural Language</a></li>
-                            <li><a data-toggle="pill" href="#menu1">Histogram</a></li>
                             <li><a data-toggle="pill" href="#menu2">Counterfactual</a></li>
                         </ul>
 
@@ -178,14 +177,7 @@
                                 <h4>Why not {{desiredcategory}}?</h4>
                                 <p> {{ynotQ}} </p>
                             </div>
-                            <div id="menu1" class="tab-pane fade">
-                                <h3>Histogram</h3>
-                                <p>Distribution of feature effects on the datapoint</p>
-                                <center>
-                                    <img src="../static/img/bar.png" class="img-thumbnail" alt="Bar Plot">
-                                    <p> temporary </p>
-                                </center>
-                            </div>
+                           
                             <div id="menu2" class="tab-pane fade">
                                 <h3>Counterfactuals</h3>
                                 <p>{{statement}}</p>

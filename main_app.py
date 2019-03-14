@@ -107,8 +107,7 @@ def returnFrequencies(dataset):
 	unique, counts = np.unique(Y_test, return_counts=True)
 	return dict(zip(unique, counts))
 
-def whyPnotQ(shap_values, category, colnames, anti):
-	# print ("shap values----\n",str(shap_values))
+def whyPnotQ(shap_values, category, colnames, dataset, anti):
 	shapdict = dict(zip(colnames, shap_values[int(category)]))
 	if anti:
 		Pos = {k: v for k, v in shapdict.items() if v < 0}
@@ -121,22 +120,13 @@ def whyPnotQ(shap_values, category, colnames, anti):
 	if n > 0:
 		newP = [P[i * n:(i + 1) * n] for i in range((len(P) + n - 1) // n )]
 		ans = "Algorithms " + classification + " classification was primarily influenced by " + mergeTerms(newP[0])
+		if dataset == "IRIS":
+			return ans
 		ans = ans + " Factors which moderately affected the outcome were " + mergeTerms(newP[1])
 		ans = ans + " Factors which trivially affected the outcome were " + mergeTerms(newP[2])
 	else:
 		ans = "Algorithms " + classification + " classification was primarily influenced by " + mergeTerms(P)
 	return ans
-
-def plot_bar_x(shapvals, label):
-    # this is for plotting purpose
-    index = np.arange(len(label))
-    plt.bar(index, shapvals, width=0.8)
-    plt.xlabel('Feature', fontsize=8)
-    plt.ylabel('Impact', fontsize=8)
-    plt.xticks(index, label, fontsize=8, rotation=90)
-    plt.title('Feature Impact')
-    plt.tight_layout()
-    plt.savefig("/home/madity/Production/flask-server/flask_server/static/img/bar.png")
 
 def generateCounterfactual(dataset, model, noofneighbours, datapoint, shapvals, desiredcategory, random):
 	X_train,X_test,Y_train,Y_test = returnDataset(dataset)
@@ -227,18 +217,18 @@ def index():
 			israndom = False
 		freq = returnFrequencies(dataset)
 		colnames = returnColNames(dataset)
+		global possclasses
+		possclasses = list(freq.keys())
+		possclasses.remove(category)
 		return render_template('index.html', dataset=dataset, model=model, location = "#step-3", 
-			datapoint = pt, category = category, allclasses = list(freq.keys()) )
+			datapoint = pt, category = category, allclasses = possclasses )
 	if request.method == 'POST' and 'desiredcategory' in request.form:
 		# Explanations
 		desiredcategory = request.form['desiredcategory']
 		contrastive = "Why " + str(category) + " not " + str(desiredcategory)
 		print (contrastive)
-		yP = whyPnotQ(shapvals, category, colnames, False)
-		ynotQ = whyPnotQ(shapvals, int(desiredcategory), colnames, True)
-
-		# Add Plot
-		plot_bar_x(shapvals[int(category)], colnames)
+		yP = whyPnotQ(shapvals, int(category), colnames, dataset, False)
+		ynotQ = whyPnotQ(shapvals, int(desiredcategory), colnames, dataset, True)
 
 		# Add Counterfactual points
 		df, original = generateCounterfactual(dataset, model, 50, datapoint, shapvals, int(desiredcategory), israndom)
@@ -261,7 +251,7 @@ def index():
 			statement = "See table below"
 		df = df.to_html()
 		return render_template('index.html', dataset=dataset, model=model, location = "#step-4", 
-			datapoint = pt, category = category, allclasses = list(freq.keys()), 
+			datapoint = pt, category = category, allclasses = possclasses, 
 			contrastive = contrastive, yP=yP, ynotQ=ynotQ, desiredcategory=desiredcategory, df=df, original=original, statement = statement)
 	return render_template('index.html', location = "#")
 
